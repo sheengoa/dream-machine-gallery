@@ -7,9 +7,12 @@ const PENTATONIC = [440, 493.88, 523.25, 659.25, 783.99];   // A4 B4 C5 E5 G5
 export function createAmbient() {
   let ctx: AudioContext | null = null;
   let master: GainNode | null = null;
+  let busA: GainNode | null = null;
+  let busB: GainNode | null = null;
   let on = false;
   let sparkleTimer = 0;
   let chordTimer = 0;
+  let toA = false;
 
   /** 单声部：±4 音分双振荡器（合唱感）→ 呼吸 LFO → 声像 */
   const addVoice = (bus: GainNode, freq: number, gain: number, pan: number, rate: number) => {
@@ -69,11 +72,11 @@ export function createAmbient() {
     master.connect(ctx.destination);
 
     // 和声垫 A：Am9（A2 E3 A3 B3 C4 E4）
-    const busA = ctx.createGain();
+    busA = ctx.createGain();
     busA.gain.value = 1;
     busA.connect(master);
     // 和声垫 B：Fmaj7（F2 C3 F3 A3 E4）
-    const busB = ctx.createGain();
+    busB = ctx.createGain();
     busB.gain.value = 0;
     busB.connect(master);
 
@@ -83,8 +86,8 @@ export function createAmbient() {
     const chordB: Array<[number, number]> = [
       [87.31, 0.09], [130.81, 0.07], [174.61, 0.08], [220, 0.045], [329.63, 0.03],
     ];
-    chordA.forEach(([f, g], i) => addVoice(busA, f, g, i % 2 ? 0.35 : -0.35, 0.05 + i * 0.017));
-    chordB.forEach(([f, g], i) => addVoice(busB, f, g, i % 2 ? -0.3 : 0.3, 0.06 + i * 0.019));
+    chordA.forEach(([f, g], i) => addVoice(busA!, f, g, i % 2 ? 0.35 : -0.35, 0.05 + i * 0.017));
+    chordB.forEach(([f, g], i) => addVoice(busB!, f, g, i % 2 ? -0.3 : 0.3, 0.06 + i * 0.019));
 
     // 18s 一轮，6s 交叉淡化交替两组和声
     let toA = false;
@@ -92,10 +95,10 @@ export function createAmbient() {
       if (!ctx) return;
       toA = !toA;
       const t = ctx.currentTime;
-      busA.gain.cancelScheduledValues(t);
-      busB.gain.cancelScheduledValues(t);
-      busA.gain.linearRampToValueAtTime(toA ? 1 : 0, t + 6);
-      busB.gain.linearRampToValueAtTime(toA ? 0 : 1, t + 6);
+      busA!.gain.cancelScheduledValues(t);
+      busB!.gain.cancelScheduledValues(t);
+      busA!.gain.linearRampToValueAtTime(toA ? 1 : 0, t + 6);
+      busB!.gain.linearRampToValueAtTime(toA ? 0 : 1, t + 6);
     }, 18000);
 
     // 空气感：白噪 → 双重低通 → 极低增益（房间底噪）
@@ -120,8 +123,22 @@ export function createAmbient() {
     nf.connect(ng);
     ng.connect(master);
     noise.start();
+  };
 
+  /** 重启生成式行为定时器（关声时会清除，开声必须恢复，否则和声静止、星音消失） */
+  const startTimers = () => {
+    clearTimeout(sparkleTimer);
+    clearInterval(chordTimer);
     scheduleSparkle();
+    chordTimer = window.setInterval(() => {
+      if (!ctx) return;
+      toA = !toA;
+      const t = ctx.currentTime;
+      busA!.gain.cancelScheduledValues(t);
+      busB!.gain.cancelScheduledValues(t);
+      busA!.gain.linearRampToValueAtTime(toA ? 1 : 0, t + 6);
+      busB!.gain.linearRampToValueAtTime(toA ? 0 : 1, t + 6);
+    }, 18000);
   };
 
   return {
@@ -134,6 +151,7 @@ export function createAmbient() {
         await ctx.resume();
         master.gain.cancelScheduledValues(ctx.currentTime);
         master.gain.setTargetAtTime(0.45, ctx.currentTime, 0.8);
+        startTimers();
         on = true;
       } else {
         master.gain.cancelScheduledValues(ctx.currentTime);
