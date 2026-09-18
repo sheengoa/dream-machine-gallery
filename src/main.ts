@@ -147,7 +147,12 @@ function lbOpen(id: number) {
 }
 function lbClose() {
   clearInterval(lbTimer);
-  lbReturnFocus?.focus();
+  clearTimeout(lbSwap);                    // 收尾时丢弃未完成的切换，避免关闭后仍改写媒体区
+  if (lbReturnFocus && lbReturnFocus !== document.body) {
+    lbReturnFocus.focus();                 // 正常路径：归还到打开灯箱的元素
+  } else {
+    $$(".card", grid).find(c => c.style.display !== "none")?.focus();  // 深链直开：落到第一件可见作品
+  }
   lbReturnFocus = null;
   lb.classList.remove("open");
   lb.setAttribute("aria-hidden", "true");
