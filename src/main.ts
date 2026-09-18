@@ -185,7 +185,8 @@ toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
 
 /* ---------- 滚轮阻尼（平滑滚动）：只接管滚轮，其余滚动来源自动同步 ---------- */
 if (matchMedia("(pointer:fine)").matches && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
-  const EASE = 0.09;            // 阻尼系数：越小越「跟手粘稠」
+  const EASE = 0.07;            // 阻尼系数：越小滑行越「粘稠」
+  const NOTCH_BOOST = 1.7;      // 滚轮「格」增益：惯性能攒起来，滑行更远
   const SNAP = 0.5;             // 距目标小于该值时贴合收尾
   let target = scrollY, current = scrollY, animating = false;
 
@@ -205,7 +206,8 @@ if (matchMedia("(pointer:fine)").matches && !matchMedia("(prefers-reduced-motion
     if (e.ctrlKey) return;                              // 保留缩放
     if ($("#lb").classList.contains("open")) return;    // 灯箱打开时不接管
     e.preventDefault();
-    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    let dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    if (Math.abs(dy) >= 50) dy *= NOTCH_BOOST;          // 鼠标滚轮「格」放大；触控板小幅滚动保持自然
     if (!animating) { current = scrollY; target = scrollY; }
     target = Math.max(0, Math.min(target + dy, maxScroll()));
     if (!animating) { animating = true; requestAnimationFrame(loop); }
