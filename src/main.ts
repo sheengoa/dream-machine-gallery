@@ -256,11 +256,13 @@ function toast(msg: string) {
 /* ---------- 移动端菜单 ---------- */
 const navToggle = $("#navToggle"), mobileMenu = $("#mobileMenu");
 function closeMobileMenu() {
+  const menuHadFocus = mobileMenu.contains(document.activeElement);
   navToggle.classList.remove("open");
   mobileMenu.classList.remove("open");
   mobileMenu.setAttribute("aria-hidden", "true");
   navToggle.setAttribute("aria-expanded", "false");
   document.body.style.overflow = "";
+  if (menuHadFocus) navToggle.focus();   // 焦点归还触发按钮，不滞留在隐藏链接上
 }
 navToggle.addEventListener("click", () => {
   const open = !mobileMenu.classList.contains("open");

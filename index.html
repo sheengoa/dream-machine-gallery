@@ -9,13 +9,16 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="canonical" href="https://shiqing.cc/">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://shiqing.cc/">
 <meta property="og:title" content="造梦机器® — AIGC 视觉实验室">
 <meta property="og:description" content="一间只展出 AI 生成作品的暗厅画廊：图像、影像与动态。每件作品保留完整提示词与生成参数。">
 <meta property="og:image" content="https://shiqing.cc/og-image.jpg">
+<meta property="og:image:alt" content="造梦机器® — AIGC 暗厅画廊首屏：13vw 压屏大字与多层光晕">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://shiqing.cc/og-image.jpg">
+<meta name="twitter:image:alt" content="造梦机器® — AIGC 暗厅画廊首屏：13vw 压屏大字与多层光晕">
 </head>
 <body>
 
@@ -108,7 +111,7 @@
     <figure class="featured-media" id="featuredMedia" data-reveal data-cursor="PLAY">
       <div class="art art-169 art--video" id="featuredArt"></div>
       <span class="new-dot mono">NEW</span>
-      <button class="play-badge" aria-label="播放精选">
+      <button class="play-badge" aria-label="播放精选" data-i18n-attr="aria-label:play_aria">
         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
       </button>
       <figcaption class="mono" data-i18n="f_fig">▶ 00:15 · 可灵 2.5 图生视频</figcaption>
@@ -131,7 +134,7 @@
       <span class="kicker" data-i18n="w_kicker">01 — WORKS · 作品墙</span>
       <p class="sec-meta mono" data-i18n="w_meta">№ 117–128 · 共 12 件 · 每周五上新</p>
     </div>
-    <div class="filters" id="filters" role="tablist" aria-label="作品筛选"></div>
+    <div class="filters" id="filters" aria-label="作品筛选" data-i18n-attr="aria-label:filters_aria"></div>
   </div>
   <div class="works" id="worksGrid"></div>
 </section>
@@ -210,7 +213,7 @@
   <span class="mono">↑</span>
 </button>
 
-<div class="toast mono" id="toast">提示词已复制到剪贴板 ✓</div>
+<div class="toast mono" id="toast" role="status" aria-live="polite">提示词已复制到剪贴板 ✓</div>
 
 <script type="module" src="/src/main.ts"></script>
 </body>
