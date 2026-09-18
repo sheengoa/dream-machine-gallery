@@ -183,6 +183,40 @@ addEventListener("scroll", () => {
 
 toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
 
+/* ---------- 滚轮阻尼（平滑滚动）：只接管滚轮，其余滚动来源自动同步 ---------- */
+if (matchMedia("(pointer:fine)").matches && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
+  const EASE = 0.09;            // 阻尼系数：越小越「跟手粘稠」
+  const SNAP = 0.5;             // 距目标小于该值时贴合收尾
+  let target = scrollY, current = scrollY, animating = false;
+
+  const maxScroll = () => document.documentElement.scrollHeight - innerHeight;
+  const loop = () => {
+    current += (target - current) * EASE;
+    if (Math.abs(target - current) < SNAP) {
+      current = target;
+      scrollTo(0, current);
+      animating = false;
+      return;
+    }
+    scrollTo(0, current);
+    requestAnimationFrame(loop);
+  };
+  addEventListener("wheel", (e) => {
+    if (e.ctrlKey) return;                              // 保留缩放
+    if ($("#lb").classList.contains("open")) return;    // 灯箱打开时不接管
+    e.preventDefault();
+    const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+    if (!animating) { current = scrollY; target = scrollY; }
+    target = Math.max(0, Math.min(target + dy, maxScroll()));
+    if (!animating) { animating = true; requestAnimationFrame(loop); }
+  }, { passive: false });
+
+  // 锚点平滑滚动 / 键盘 / 拖动滚动条等外部滚动：即时同步目标
+  addEventListener("scroll", () => {
+    if (!animating) { target = scrollY; current = scrollY; }
+  }, { passive: true });
+}
+
 $$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
   const target = $(a.getAttribute("href")!);
   if (target) { e.preventDefault(); target.scrollIntoView({ behavior: "smooth" }); }
