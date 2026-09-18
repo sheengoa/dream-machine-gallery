@@ -98,7 +98,8 @@ img,svg{display:block;max-width:100%}
   transition:transform .45s var(--ease);
 }
 .nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
-.nav-lang{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;border-left:1px solid var(--line);padding-left:26px}
+.nav-lang{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;border-left:1px solid var(--line);padding-left:26px;color:var(--mut);transition:color .3s}
+.nav-lang:hover{color:var(--ink)}
 
 /* ---------- 移动端菜单 ---------- */
 .nav-toggle{display:none}
@@ -182,15 +183,6 @@ img,svg{display:block;max-width:100%}
 }
 .hero-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:#e0442e;animation:pulse 1.6s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
-.sound-toggle{
-  position:absolute;right:4vw;bottom:6vh;width:64px;height:64px;border-radius:50%;
-  border:1px solid var(--line-strong);color:var(--mut);font-size:18px;
-  display:flex;align-items:center;justify-content:center;
-  transition:border-color .4s,color .4s,transform .4s var(--ease);
-}
-.sound-toggle:hover{border-color:var(--accent);color:var(--accent)}
-.sound-toggle span{transition:transform .4s var(--ease)}
-.sound-toggle:hover span{transform:scale(1.15)}
 .hero-inner{padding:0 5vw 14vh}
 .kicker{margin-bottom:18px}
 .hero-title{font-size:clamp(64px,13.5vw,220px);line-height:.98;font-weight:800;letter-spacing:-.015em}
@@ -381,8 +373,6 @@ img,svg{display:block;max-width:100%}
   padding:12px 4px 0;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;color:var(--mut);
 }
 .card-cap b{font-weight:400;color:var(--ink)}
-.works-more{text-align:center;margin-top:26px}
-.works-more .mono{font-size:11px;margin-left:10px}
 
 /* ---------- STUDIO ---------- */
 .studio-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(32px,5vw,80px);align-items:center}
@@ -485,7 +475,6 @@ img,svg{display:block;max-width:100%}
   .nav-links a{display:none}
   .nav-lang{border:none;padding-left:0}
   .hero-tag{top:84px}
-  .sound-toggle{display:none}
   .lb-panel{grid-template-columns:1fr;height:auto;top:6vh;margin-top:0;overflow-y:auto}
   .lb-info{padding:0 2vw 40px}
   .stats{grid-template-columns:repeat(3,1fr)}
@@ -527,14 +516,6 @@ body:not(.ready) [data-rise]{animation-play-state:paused}
 }
 .hero-coords{position:absolute;left:5vw;bottom:4.2vh;font-size:10px;letter-spacing:.24em;color:var(--dim)}
 @media (max-width:900px){.hero-side,.hero-coords{display:none}}
-.eq{display:flex;align-items:flex-end;gap:3px;height:16px}
-.eq i{width:2px;height:100%;background:currentColor;transform:scaleY(.22);transform-origin:bottom;opacity:.5}
-.sound-toggle.on{border-color:var(--accent);color:var(--accent)}
-.sound-toggle.on .eq i{animation:eq .9s ease-in-out infinite alternate;opacity:1}
-.sound-toggle.on .eq i:nth-child(2){animation-delay:.15s}
-.sound-toggle.on .eq i:nth-child(3){animation-delay:.3s}
-.sound-toggle.on .eq i:nth-child(4){animation-delay:.45s}
-@keyframes eq{from{transform:scaleY(.18)}to{transform:scaleY(1)}}
 
 /* 区块对位标记 + 元信息 */
 .sec--marks::before,.sec--marks::after{

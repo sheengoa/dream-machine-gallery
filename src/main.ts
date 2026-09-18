@@ -4,6 +4,7 @@ import "@fontsource/space-grotesk/700.css";
 import "./styles/main.css";
 import { WORKS, type Work } from "./data/works";
 import { esc, modelKey, workVisual } from "./modules/art";
+import { applyStatic, getLang, modelName, setLang, t } from "./i18n";
 
 /* ============================================================
    造梦机器® — 入口：渲染 + 全部交互
@@ -15,17 +16,21 @@ import { esc, modelKey, workVisual } from "./modules/art";
 const $  = (s: string, p: ParentNode = document) => p.querySelector(s) as HTMLElement;
 const $$ = (s: string, p: ParentNode = document) => [...p.querySelectorAll(s)] as HTMLElement[];
 const REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
+applyStatic();   // 按 localStorage 记忆的语言刷新静态文案（需在渲染前执行）
+
+const workTitle = (w: Work) => (getLang() === "en" ? w.en : w.title);
+const cardAria  = (w: Work) => `${t("card_aria_prefix")} No.${w.id} ${workTitle(w)}`;
 
 /* ---------- 渲染作品墙 / 精选 / 工作室 ---------- */
 const grid = $("#worksGrid");
 grid.innerHTML = WORKS.map((w, i) => {
   const v = w.type === "video";
-  return `<article class="card" tabindex="0" role="button" aria-label="查看作品 No.${w.id} ${esc(w.title)}" data-id="${w.id}" data-tags="${w.type} ${modelKey(w.model)}" data-cursor="OPEN" style="--d:${(i % 4) * 0.08}s">
+  return `<article class="card" tabindex="0" role="button" aria-label="${esc(cardAria(w))}" data-id="${w.id}" data-tags="${w.type} ${modelKey(w.model)}" data-cursor="OPEN" style="--d:${(i % 4) * 0.08}s">
     <div class="card-frame">
       <div class="art art-${w.ratio.replace(":", "")}${v ? " art--video" : ""}">${workVisual(w, { animated: v, grain: false })}</div>
       ${v ? `<span class="v-badge">▶ ${esc(w.dur ?? "")}</span><span class="card-play"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>` : ""}
     </div>
-    <p class="card-cap"><b>No.${w.id} — ${esc(w.title)}</b><span>${v ? esc(w.dur ?? "") + " · " : ""}${esc(w.model)}</span></p>
+    <p class="card-cap"><b>No.${w.id} — ${esc(workTitle(w))}</b><span>${v ? esc(w.dur ?? "") + " · " : ""}${esc(modelName(w.model))}</span></p>
   </article>`;
 }).join("");
 
@@ -50,18 +55,24 @@ const videoIO = new IntersectionObserver((entries) => {
 }, { threshold: 0.25 });
 $$("video[data-artvideo]").forEach((v) => videoIO.observe(v));
 
-/* ---------- 筛选（带数量上标） ---------- */
+/* ---------- 筛选（带数量上标）：委托监听，语言切换后可整块重绘 ---------- */
 const FILTERS: [string, string][] = [
-  ["全部",""], ["图像","image"], ["视频","video"],
-  ["可灵","kling"], ["即梦","jimeng"], ["MJ","mj"], ["SD/FLUX","sd"],
+  ["f_all",""], ["f_image","image"], ["f_video","video"],
+  ["f_kling","kling"], ["f_jimeng","jimeng"], ["f_mj","mj"], ["f_sd","sd"],
 ];
 const tagCount = (tag: string) =>
   tag ? WORKS.filter((w) => `${w.type} ${modelKey(w.model)}`.includes(tag)).length : WORKS.length;
-$("#filters").innerHTML = FILTERS.map(([label, tag], i) =>
-  `<button class="chip${i === 0 ? " on" : ""}" data-tag="${tag}">${label}<sup>${String(tagCount(tag)).padStart(2, "0")}</sup></button>`).join("");
 
 let activeTag = "";
-$$(".chip", $("#filters")).forEach((chip) => chip.addEventListener("click", () => {
+const renderChips = () => {
+  $("#filters").innerHTML = FILTERS.map(([key, tag]) =>
+    `<button class="chip${tag === activeTag ? " on" : ""}" data-tag="${tag}">${t(key)}<sup>${String(tagCount(tag)).padStart(2, "0")}</sup></button>`).join("");
+};
+renderChips();
+
+$("#filters").addEventListener("click", (e) => {
+  const chip = (e.target as HTMLElement).closest(".chip") as HTMLElement | null;
+  if (!chip) return;
   $$(".chip", $("#filters")).forEach((c) => c.classList.toggle("on", c === chip));
   activeTag = chip.dataset.tag ?? "";
   $$(".card", grid).forEach((card) => {
@@ -74,9 +85,21 @@ $$(".chip", $("#filters")).forEach((chip) => chip.addEventListener("click", () =
       setTimeout(() => { if (card.classList.contains("hide")) card.style.display = "none"; }, 360);
     }
   });
-}));
+});
 
-$("#worksCount").textContent = `共 ${WORKS.length} 件`;
+/* 语言切换后，仅更新卡片文案（不重建 DOM，保留显影状态） */
+const updateCardCaptions = () => {
+  $$(".card", grid).forEach((card) => {
+    const w = WORKS.find((x) => x.id === +card.dataset.id!);
+    if (!w) return;
+    const v = w.type === "video";
+    card.setAttribute("aria-label", cardAria(w));
+    const cap = card.querySelector(".card-cap b") as HTMLElement;
+    const meta = card.querySelector(".card-cap span") as HTMLElement;
+    if (cap) cap.textContent = `No.${w.id} — ${workTitle(w)}`;
+    if (meta) meta.textContent = `${v ? (w.dur ?? "") + " · " : ""}${modelName(w.model)}`;
+  });
+};
 
 /* ---------- 灯箱 ---------- */
 const lb = $("#lb");
@@ -114,15 +137,17 @@ function lbRender() {
     media.classList.remove("swapping");
   }, 240);
   $("#lbKicker").textContent = `No.${w.id} — ${w.type.toUpperCase()}`;
-  $("#lbTitle").innerHTML = `${esc(w.title)}<span class="en">${esc(w.en)}</span>`;
-  $("#lbMeta").textContent = `${w.model} · ${w.type === "video" ? "图生视频 · " : ""}${w.dur ?? "静态"} · ${w.year}`;
+  $("#lbTitle").innerHTML = getLang() === "en"
+    ? `${esc(w.en)}<span class="en">${esc(w.title)}</span>`
+    : `${esc(w.title)}<span class="en">${esc(w.en)}</span>`;
+  $("#lbMeta").textContent = `${modelName(w.model)} · ${w.type === "video" ? t("i2v") + " · " : ""}${w.dur ?? t("still")} · ${w.year}`;
   $("#lbPrompt").textContent = `「${w.prompt}」`;
   $("#lbParams").innerHTML = [w.ratio, w.type === "video" ? "24fps" : "3072×4096", `seed ${w.seed * 617}`, "ed. 1/1"]
     .map((p) => `<span>${esc(p)}</span>`).join("");
   const prev = lbList[(lbIdx - 1 + lbList.length) % lbList.length];
   const next = lbList[(lbIdx + 1) % lbList.length];
-  $("#lbPrev").textContent = `← ${prev.title}`;
-  $("#lbNext").textContent = `${next.title} →`;
+  $("#lbPrev").textContent = `← ${workTitle(prev)}`;
+  $("#lbNext").textContent = `${workTitle(next)} →`;
   $("#lbPos").textContent = `${lbIdx + 1} / ${lbList.length}`;
   // 竖屏等高画面的进度条放信息栏导航行下方；横屏的叠加在媒体底部（原有设计）
   const progress = $("#lbProgress");
@@ -192,9 +217,9 @@ $("#lbCopy").addEventListener("click", async () => {
   const w = lbList[lbIdx];
   try {
     await navigator.clipboard.writeText(`${w.prompt}\n--model ${w.model}`);
-    toast("提示词已复制到剪贴板 ✓");
+    toast(t("toast_copied"));
   } catch {
-    toast("复制失败 —— 请手动选择提示词复制");
+    toast(t("toast_copy_fail"));
   }
 });
 $("#lbShare").addEventListener("click", async () => {
@@ -205,9 +230,9 @@ $("#lbShare").addEventListener("click", async () => {
   }
   try {
     await navigator.clipboard.writeText(location.href);
-    toast("链接已复制到剪贴板 ✓");
+    toast(t("toast_link_copied"));
   } catch {
-    toast("分享失败");
+    toast(t("toast_share_fail"));
   }
 });
 if (location.hash.startsWith("#w")) {
@@ -406,13 +431,13 @@ const secIO = new IntersectionObserver((entries) => {
 }, { rootMargin: "-38% 0px -55% 0px" });
 ["works", "studio", "contact"].forEach((id) => { const el = document.getElementById(id); if (el) secIO.observe(el); });
 
-/* ---------- 占位按钮 ---------- */
-const soundBtn = $(".sound-toggle");
-soundBtn.addEventListener("click", () => {
-  const on = soundBtn.classList.toggle("on");
-  toast(on ? "声音已开启（原型占位）" : "声音已关闭");
+/* ---------- 语言切换：静态文案 + 动态渲染区同步刷新 ---------- */
+$("#langToggle").addEventListener("click", () => {
+  setLang(getLang() === "zh" ? "en" : "zh");
+  renderChips();
+  updateCardCaptions();
+  if (lb.classList.contains("open")) lbRender();
 });
-$("#loadMore").addEventListener("click", () => toast("已全部 12 件 —— 原型仅内置演示数据"));
 
 /* ---------- 开场幕帘 ---------- */
 if (REDUCED) {
