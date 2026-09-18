@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>造梦机器® — AIGC 视觉实验室 / IMAGE · VIDEO · MOTION</title>
+<meta name="description" content="一间只展出 AI 生成作品的暗厅画廊：图像、影像与动态。每件作品保留完整提示词与生成参数。">
+<meta name="theme-color" content="#0a0a0b">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<meta property="og:type" content="website">
+<meta property="og:title" content="造梦机器® — AIGC 视觉实验室">
+<meta property="og:description" content="一间只展出 AI 生成作品的暗厅画廊：图像、影像与动态。每件作品保留完整提示词与生成参数。">
+<meta name="twitter:card" content="summary">
+</head>
+<body>
+
+<!-- 全局 SVG defs：颗粒滤镜 + 暗角 -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grainF" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0"/>
+    </filter>
+    <radialGradient id="vigG" cx="50%" cy="46%" r="72%">
+      <stop offset="58%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity="0.4"/>
+    </radialGradient>
+  </defs>
+</svg>
+
+<!-- 开场幕帘 -->
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-inner">
+    <span class="loader-logo">造梦机器<sup>®</sup></span>
+    <span class="loader-line"><i id="loadBar"></i></span>
+    <span class="loader-num mono"><span id="loadNum">00</span>%</span>
+  </div>
+</div>
+
+<div class="scrollbar-top" id="scrollProgress" aria-hidden="true"></div>
+
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor-dot"></span><span class="cursor-ring"><i class="cursor-label"></i></span></div>
+
+<header class="nav" id="nav">
+  <a class="logo" href="#top" data-magnet>造梦机器<span class="logo-r">®</span></a>
+  <nav class="nav-links">
+    <a href="#works">作品</a><a href="#studio">关于</a><a href="#contact">联系</a>
+    <span class="nav-lang">中 / EN</span>
+  </nav>
+</header>
+
+<!-- ① HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-vignette"></div>
+  <div class="hero-tag mono">● REC — SHOWREEL 00:15 · LOOP</div>
+  <button class="sound-toggle mono" data-magnet aria-label="声音开关"><span class="eq"><i></i><i></i><i></i><i></i></span></button>
+  <div class="hero-side mono" aria-hidden="true">AI GENERATED ART &amp; FILM — EST.2026 — 造梦机器</div>
+  <div class="hero-coords mono" id="heroCoords">31.2304° N, 121.4737° E — <span id="heroDate">2026.09.18 FRI</span> — 暗厅开放中</div>
+
+  <div class="hero-inner">
+    <p class="kicker" data-rise>AIGC VISUAL LAB — 图像 / 影像 / 动态</p>
+    <h1 class="hero-title" aria-label="造梦机器">
+      <span class="line"><i data-rise>造梦机器</i><i class="reg" data-rise>®</i></span>
+    </h1>
+    <div class="hero-foot" data-rise>
+      <p class="hero-sub">一间只展出 AI 作品的暗厅。每周上新，<br>每件作品保留它的提示词与生成参数。</p>
+      <div class="hero-cta">
+        <a class="btn btn-solid" href="#works" data-magnet>进入展厅</a>
+        <a class="btn btn-ghost" href="#featured" data-magnet>本周精选 ↓</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue mono" aria-hidden="true"><span></span>SCROLL</div>
+</section>
+
+<!-- ② MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track mono" id="marquee1"></div>
+</div>
+
+<!-- ③ FEATURED -->
+<section class="sec sec--marks featured" id="featured">
+  <div class="sec-head" data-reveal>
+    <span class="kicker">00 — FEATURED · WK 38</span>
+  </div>
+  <div class="featured-grid">
+    <figure class="featured-media" id="featuredMedia" data-reveal data-cursor="PLAY">
+      <div class="art art-169 art--video" id="featuredArt"></div>
+      <span class="new-dot mono">NEW</span>
+      <button class="play-badge" aria-label="播放精选">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg>
+      </button>
+      <figcaption class="mono">▶ 00:15 · 可灵 2.5 图生视频</figcaption>
+    </figure>
+    <div class="featured-info">
+      <span class="featured-no mono" aria-hidden="true">128</span>
+      <p class="kicker" data-reveal>FEATURED / WK 38 · No.128</p>
+      <h2 class="featured-title" data-reveal>夜航西飞<span class="en">NIGHT FERRY</span></h2>
+      <p class="meta mono" data-reveal>可灵 2.5 · 图生视频 · 15s · 2026.09</p>
+      <p class="featured-desc" data-reveal>深夜渡轮驶出港湾，探照灯扫过铅灰色海面。胶片颗粒、冷蓝调、一镜到底 —— 本周唯一一件逐帧打磨了 40 版的作品。</p>
+      <a class="text-link mono" href="#works" data-reveal>查看全部作品 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ④ WORKS -->
+<section class="sec sec--marks" id="works">
+  <div class="sec-head" data-reveal>
+    <div>
+      <span class="kicker">01 — WORKS · 作品墙</span>
+      <p class="sec-meta mono">№ 117–128 · 共 12 件 · 每周五上新</p>
+    </div>
+    <div class="filters" id="filters" role="tablist" aria-label="作品筛选"></div>
+  </div>
+  <div class="works" id="worksGrid"></div>
+  <div class="works-more" data-reveal>
+    <button class="btn btn-ghost" data-magnet id="loadMore">加载更多 ↓ <span class="mono mut" id="worksCount"></span></button>
+  </div>
+</section>
+
+<!-- ⑤ STUDIO -->
+<section class="sec studio" id="studio">
+  <div class="studio-grid">
+    <div>
+      <span class="kicker" data-reveal>02 — STUDIO · 关于</span>
+      <h2 class="display" data-reveal>我们用模型画画，<br>用提示词导演。</h2>
+      <p class="studio-desc" data-reveal>
+        造梦机器是一间 AIGC 视觉实验室。我们相信模型是乐器而不是画家：
+        审美由人决定，产能由模型放大。这里展出的是双方合作的结果 ——
+        以及每一件作品背后的提示词、参数与废掉的版本。
+      </p>
+      <div class="stats" data-reveal>
+        <div class="stat"><strong data-count="128">0</strong><span>展出作品</span></div>
+        <div class="stat"><strong data-count="9">0</strong><span>在用模型</span></div>
+        <div class="stat"><strong data-count="4600" data-suffix="+">0</strong><span>打磨过的提示词</span></div>
+      </div>
+    </div>
+    <figure class="studio-media" id="studioArt" data-reveal data-cursor="STUDIO"></figure>
+  </div>
+</section>
+
+<!-- ⑥ TOOLS -->
+<div class="tools">
+  <div class="marquee-track mono marquee--tools" id="marquee2"></div>
+</div>
+
+<!-- ⑦ CONTACT -->
+<section class="sec contact" id="contact">
+  <span class="kicker" data-reveal>03 — CONTACT · 合作</span>
+  <h2 class="contact-title" data-reveal><span class="stroke">有想法？</span><br><span class="stroke">一起造点新的。</span></h2>
+  <div class="contact-cta" data-reveal>
+    <a class="btn btn-solid btn-big" href="mailto:hello@dreammachine.studio" data-magnet>hello@dreammachine.studio</a>
+    <div class="socials mono">
+      <a href="#contact" data-magnet>小红书</a><a href="#contact" data-magnet>B 站</a><a href="#contact" data-magnet>Instagram</a>
+    </div>
+  </div>
+  <footer class="footer mono" data-reveal>
+    <span>© 2026 造梦机器 DREAM MACHINE®</span>
+    <span>本站所有作品由 AI 生成 · 由人筛选</span>
+    <span>京ICP备 —— 占位</span>
+  </footer>
+</section>
+
+<!-- ⑧ LIGHTBOX -->
+<div class="lb" id="lb" aria-hidden="true" role="dialog" aria-modal="true" aria-label="作品详情">
+  <div class="lb-backdrop" data-lb-close></div>
+  <div class="lb-panel">
+    <button class="lb-close mono" data-lb-close aria-label="关闭">✕ ESC</button>
+    <div class="lb-media" id="lbMedia"></div>
+    <aside class="lb-info">
+      <p class="kicker" id="lbKicker">No.128 — VIDEO</p>
+      <h3 class="lb-title" id="lbTitle">夜航西飞<span class="en">NIGHT FERRY</span></h3>
+      <p class="meta mono" id="lbMeta"></p>
+      <div class="lb-prompt mono" id="lbPrompt"></div>
+      <div class="lb-params" id="lbParams"></div>
+      <div class="lb-actions">
+        <button class="btn btn-solid" id="lbCopy">复制提示词</button>
+        <button class="btn btn-ghost">下载原图</button>
+        <button class="btn btn-ghost">分享</button>
+      </div>
+      <div class="lb-nav mono">
+        <button data-lb-prev id="lbPrev">← 上一件</button><span id="lbPos">— / —</span><button data-lb-next id="lbNext">下一件 →</button>
+        <span class="lb-hint">ESC 关闭 · ←→ 切换</span>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<button class="totop" id="toTop" aria-label="回到顶部">
+  <svg viewBox="0 0 48 48"><circle class="tt-track" cx="24" cy="24" r="21"/><circle class="tt-bar" id="ttBar" cx="24" cy="24" r="21"/></svg>
+  <span class="mono">↑</span>
+</button>
+
+<div class="toast mono" id="toast">提示词已复制到剪贴板 ✓</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
