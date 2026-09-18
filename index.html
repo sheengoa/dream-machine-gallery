@@ -7,18 +7,20 @@
 <meta name="description" content="一间只展出 AI 生成作品的暗厅画廊：图像、影像与动态。每件作品保留完整提示词与生成参数。">
 <meta name="theme-color" content="#0a0a0b">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://shiqing.cc/">
 <meta property="og:title" content="造梦机器® — AIGC 视觉实验室">
 <meta property="og:description" content="一间只展出 AI 生成作品的暗厅画廊：图像、影像与动态。每件作品保留完整提示词与生成参数。">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://shiqing.cc/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://shiqing.cc/og-image.jpg">
 </head>
 <body>
 
 <!-- 全局 SVG defs：颗粒滤镜 + 暗角 -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<svg class="svg-defs" width="0" height="0" aria-hidden="true">
   <defs>
     <filter id="grainF" x="0" y="0" width="100%" height="100%">
       <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/>
@@ -51,7 +53,20 @@
     <a href="#works">作品</a><a href="#studio">关于</a><a href="#contact">联系</a>
     <span class="nav-lang">中 / EN</span>
   </nav>
+  <button class="nav-toggle" id="navToggle" aria-label="打开菜单" aria-expanded="false" aria-controls="mobileMenu">
+    <span></span><span></span>
+  </button>
 </header>
+
+<!-- 移动端全屏菜单 -->
+<div class="mobile-menu" id="mobileMenu" aria-hidden="true">
+  <nav class="mobile-links">
+    <a href="#works">作品</a>
+    <a href="#studio">关于</a>
+    <a href="#contact">联系</a>
+  </nav>
+  <p class="mobile-foot mono">AI GENERATED ART &amp; FILM — EST.2026 — 造梦机器</p>
+</div>
 
 <!-- ① HERO -->
 <section class="hero" id="top">
@@ -182,12 +197,13 @@
       <div class="lb-actions">
         <button class="btn btn-solid" id="lbCopy">复制提示词</button>
         <button class="btn btn-ghost">下载原图</button>
-        <button class="btn btn-ghost">分享</button>
+        <button class="btn btn-ghost" id="lbShare">分享</button>
       </div>
       <div class="lb-nav mono">
         <button data-lb-prev id="lbPrev">← 上一件</button><span id="lbPos">— / —</span><button data-lb-next id="lbNext">下一件 →</button>
         <span class="lb-hint">ESC 关闭 · ←→ 切换</span>
       </div>
+      <div class="lb-progress mono" id="lbProgress" hidden><span class="track"><i></i></span><span class="lb-time">00:00 / 00:00</span></div>
     </aside>
   </div>
 </div>

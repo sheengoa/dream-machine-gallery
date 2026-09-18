@@ -36,6 +36,7 @@ img,svg{display:block;max-width:100%}
 
 .mono{font-family:var(--font-mono)}
 .mut{color:var(--mut)}
+.svg-defs{position:absolute}
 .kicker{
   font-family:var(--font-mono);font-size:11px;letter-spacing:.42em;
   text-transform:uppercase;color:var(--mut);
@@ -54,18 +55,20 @@ img,svg{display:block;max-width:100%}
     transform:translate(-50%,-50%);
   }
   .cursor-ring{
-    position:absolute;width:34px;height:34px;border-radius:50%;
+    position:absolute;left:0;top:0;width:34px;height:34px;border-radius:50%;
+    margin:-17px 0 0 -17px;
     border:1px solid rgba(255,255,255,.65);
-    transform:translate(-50%,-50%) scale(1);
-    transition:transform .35s var(--ease),background .35s;
+    translate:-100px -100px;
+    scale:1;
+    transition:scale .35s var(--ease),background .35s;
     display:flex;align-items:center;justify-content:center;
   }
   .cursor-label{
     font-family:var(--font-mono);font-style:normal;font-size:10px;letter-spacing:.18em;
     color:#fff;opacity:0;transition:opacity .25s;
   }
-  .cursor.is-hover .cursor-ring{transform:translate(-50%,-50%) scale(1.9);background:rgba(255,255,255,.08)}
-  .cursor.is-label .cursor-ring{transform:translate(-50%,-50%) scale(2.6);background:rgba(255,255,255,.95);border-color:transparent}
+  .cursor.is-hover .cursor-ring{scale:1.9;background:rgba(255,255,255,.08)}
+  .cursor.is-label .cursor-ring{scale:2.6;background:rgba(255,255,255,.95);border-color:transparent}
   .cursor.is-label .cursor-label{opacity:1;color:#111;mix-blend-mode:normal}
 }
 @media (pointer:coarse){.cursor{display:none}}
@@ -96,6 +99,42 @@ img,svg{display:block;max-width:100%}
 }
 .nav-links a:hover::after{transform:scaleX(1);transform-origin:left}
 .nav-lang{font-family:var(--font-mono);font-size:11px;letter-spacing:.2em;border-left:1px solid var(--line);padding-left:26px}
+
+/* ---------- 移动端菜单 ---------- */
+.nav-toggle{display:none}
+.mobile-menu{display:none}
+
+@media (max-width:760px){
+  .nav-toggle{
+    display:flex;flex-direction:column;justify-content:center;gap:7px;
+    width:44px;height:44px;padding:0 11px;
+    border:1px solid var(--line-strong);border-radius:9px;
+  }
+  .nav-toggle span{display:block;height:1px;background:var(--ink);transition:transform .4s var(--ease)}
+  .nav-toggle.open span:nth-child(1){transform:translateY(4px) rotate(45deg)}
+  .nav-toggle.open span:nth-child(2){transform:translateY(-4px) rotate(-45deg)}
+
+  .mobile-menu{
+    display:flex;flex-direction:column;justify-content:center;gap:9vh;
+    position:fixed;inset:0;z-index:99;padding:0 9vw;
+    background:rgba(10,10,11,.96);
+    -webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);
+    opacity:0;visibility:hidden;
+    transition:opacity .45s var(--ease),visibility 0s .45s;
+  }
+  .mobile-menu.open{opacity:1;visibility:visible;transition:opacity .45s var(--ease)}
+  .mobile-links{display:flex;flex-direction:column;gap:4px}
+  .mobile-links a{
+    font-family:var(--font-serif);font-size:clamp(44px,12vw,72px);line-height:1.4;color:var(--ink);
+    opacity:0;transform:translateY(26px);
+    transition:opacity .6s var(--ease),transform .6s var(--ease),color .3s;
+  }
+  .mobile-menu.open .mobile-links a{opacity:1;transform:none}
+  .mobile-menu.open .mobile-links a:nth-child(2){transition-delay:.08s}
+  .mobile-menu.open .mobile-links a:nth-child(3){transition-delay:.16s}
+  .mobile-links a:hover{color:var(--accent)}
+  .mobile-foot{font-size:10px;letter-spacing:.3em;color:var(--dim)}
+}
 
 /* ---------- 通用区块 ---------- */
 .sec{padding:clamp(90px,12vh,160px) 5vw;position:relative}
@@ -287,9 +326,9 @@ img,svg{display:block;max-width:100%}
 }
 .card{
   break-inside:avoid;margin-bottom:26px;
-  opacity:0;transform:translateY(36px);filter:blur(10px);
+  opacity:0;transform:translateY(36px);
 }
-.card.in{opacity:1;transform:none;filter:blur(0);transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease);transition-delay:var(--d,0s)}
+.card.in{opacity:1;transform:none;transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
 .card.hide{opacity:0!important;transform:scale(.94)!important;transition:all .35s ease!important}
 .card-frame{
   position:relative;border-radius:14px;overflow:hidden;
@@ -518,12 +557,16 @@ body:not(.ready) [data-rise]{animation-play-state:paused}
 .card:hover .card-cap b{color:var(--accent)}
 .card:hover .card-cap b::after{opacity:1;transform:translate(0,3px)}
 
-/* 灯箱：假播放进度 + 作品切换过渡 + 相邻预告 */
+/* 灯箱：假播放进度（横屏叠加媒体底部 / 竖屏放信息栏导航行下方） + 作品切换过渡 + 相邻预告 */
 .lb-progress{
-  position:absolute;left:0;right:0;bottom:0;z-index:2;
-  padding:26px 16px 12px;display:flex;align-items:center;gap:12px;
-  background:linear-gradient(transparent,rgba(5,5,7,.68));
+  display:flex;align-items:center;gap:12px;
   font-size:10px;letter-spacing:.18em;color:rgba(242,240,234,.85);
+}
+.lb-progress[hidden]{display:none}
+.lb-progress--overlay{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  padding:26px 16px 12px;
+  background:linear-gradient(transparent,rgba(5,5,7,.68));
 }
 .lb-progress .track{flex:1;height:2px;background:rgba(242,240,234,.18);overflow:hidden}
 .lb-progress .track i{display:block;height:100%;width:0;background:var(--accent)}

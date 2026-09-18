@@ -1,6 +1,11 @@
 import type { Work } from "../data/works";
 
 /* ---------- 工具 ---------- */
+/** HTML 转义：作品数据拼进 innerHTML / 属性前统一过一道 */
+export const esc = (s: string) =>
+  s.replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] ?? c);
+
 export const mulberry32 = (a: number) => () => {
   a |= 0; a = (a + 0x6D2B79F5) | 0;
   let t = Math.imul(a ^ (a >>> 15), 1 | a);
@@ -20,6 +25,8 @@ export const modelKey = (m: string) => m.includes("可灵") ? "kling"
 export interface ArtOptions {
   uid?: string;
   animated?: boolean;
+  /** 灯箱内自动播放；卡片/精选位一律由 IntersectionObserver 接管播放 */
+  autoplay?: boolean;
   /** 大图默认带颗粒滤镜；小卡片交给全局颗粒层，省 12 个 feTurbulence */
   grain?: boolean;
 }
@@ -45,7 +52,7 @@ export function artSVG(w: Work, { uid = String(w.id), animated = false, grain = 
     geo = `<rect x="0" y="${y}%" width="100%" height="1.5" fill="${w.accent}" opacity=".4"/>
            <rect x="0" y="${y}%" width="${(20 + rnd() * 30).toFixed(0)}%" height="3" fill="${w.accent}" opacity=".8"/>`;
   }
-  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${w.title} 占位视觉">
+  return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${esc(w.title)} 占位视觉">
     <defs>
       <linearGradient id="base${uid}" x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stop-color="${c0}"/><stop offset="1" stop-color="${c1}"/>
@@ -66,8 +73,9 @@ export function artSVG(w: Work, { uid = String(w.id), animated = false, grain = 
 export function workVisual(w: Work, opts: ArtOptions = {}): string {
   if (!w.media) return artSVG(w, opts);
   if (w.media.kind === "video") {
-    const poster = w.media.poster ? ` poster="${w.media.poster}"` : "";
-    return `<video src="${w.media.src}"${poster} muted loop playsinline autoplay></video>`;
+    const poster = w.media.poster ? ` poster="${esc(w.media.poster)}"` : "";
+    const auto = opts.autoplay ? " autoplay" : "";
+    return `<video src="${esc(w.media.src)}"${poster} muted loop playsinline preload="metadata"${auto} data-artvideo></video>`;
   }
-  return `<img src="${w.media.src}" alt="${w.title}" loading="lazy">`;
+  return `<img src="${esc(w.media.src)}" alt="${esc(w.title)}" loading="lazy">`;
 }

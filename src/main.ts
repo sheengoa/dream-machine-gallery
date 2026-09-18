@@ -1,6 +1,9 @@
+import "@fontsource/space-grotesk/400.css";
+import "@fontsource/space-grotesk/500.css";
+import "@fontsource/space-grotesk/700.css";
 import "./styles/main.css";
 import { WORKS, type Work } from "./data/works";
-import { modelKey, workVisual } from "./modules/art";
+import { esc, modelKey, workVisual } from "./modules/art";
 
 /* ============================================================
    造梦机器® — 入口：渲染 + 全部交互
@@ -11,17 +14,18 @@ import { modelKey, workVisual } from "./modules/art";
 /* ---------- 工具 ---------- */
 const $  = (s: string, p: ParentNode = document) => p.querySelector(s) as HTMLElement;
 const $$ = (s: string, p: ParentNode = document) => [...p.querySelectorAll(s)] as HTMLElement[];
+const REDUCED = matchMedia("(prefers-reduced-motion:reduce)").matches;
 
 /* ---------- 渲染作品墙 / 精选 / 工作室 ---------- */
 const grid = $("#worksGrid");
 grid.innerHTML = WORKS.map((w, i) => {
   const v = w.type === "video";
-  return `<article class="card" data-id="${w.id}" data-tags="${w.type} ${modelKey(w.model)}" data-cursor="OPEN" style="--d:${(i % 4) * 0.08}s">
+  return `<article class="card" tabindex="0" role="button" aria-label="查看作品 No.${w.id} ${esc(w.title)}" data-id="${w.id}" data-tags="${w.type} ${modelKey(w.model)}" data-cursor="OPEN" style="--d:${(i % 4) * 0.08}s">
     <div class="card-frame">
       <div class="art art-${w.ratio.replace(":", "")}${v ? " art--video" : ""}">${workVisual(w, { animated: v, grain: false })}</div>
-      ${v ? `<span class="v-badge">▶ ${w.dur}</span><span class="card-play"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>` : ""}
+      ${v ? `<span class="v-badge">▶ ${esc(w.dur ?? "")}</span><span class="card-play"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>` : ""}
     </div>
-    <p class="card-cap"><b>No.${w.id} — ${w.title}</b><span>${v ? w.dur + " · " : ""}${w.model}</span></p>
+    <p class="card-cap"><b>No.${w.id} — ${esc(w.title)}</b><span>${v ? esc(w.dur ?? "") + " · " : ""}${esc(w.model)}</span></p>
   </article>`;
 }).join("");
 
@@ -35,6 +39,16 @@ $("#studioArt").innerHTML =
 
 $("#marquee1").innerHTML = ("IMAGE <i>✦</i> VIDEO <i>✦</i> MOTION <i>✦</i> PROMPT CRAFT <i>✦</i> AI FILM <i>✦</i> CONCEPT ART <i>✦</i> ").repeat(4);
 $("#marquee2").innerHTML = ("可灵 KLING <i>✦</i> 即梦 SEEDANCE <i>✦</i> MIDJOURNEY <i>✦</i> STABLE DIFFUSION <i>✦</i> FLUX <i>✦</i> RUNWAY <i>✦</i> VEO <i>✦</i> MINIMAX H3 <i>✦</i> ").repeat(3);
+
+/* ---------- 视频素材：进视口才播、离开暂停（灯箱内的自动播放不受此控） ---------- */
+const videoIO = new IntersectionObserver((entries) => {
+  entries.forEach((en) => {
+    const v = en.target as HTMLVideoElement;
+    if (en.isIntersecting) v.play().catch(() => { /* 自动播放被策略拦截时静默 */ });
+    else v.pause();
+  });
+}, { threshold: 0.25 });
+$$("video[data-artvideo]").forEach((v) => videoIO.observe(v));
 
 /* ---------- 筛选（带数量上标） ---------- */
 const FILTERS: [string, string][] = [
@@ -51,7 +65,7 @@ $$(".chip", $("#filters")).forEach((chip) => chip.addEventListener("click", () =
   $$(".chip", $("#filters")).forEach((c) => c.classList.toggle("on", c === chip));
   activeTag = chip.dataset.tag ?? "";
   $$(".card", grid).forEach((card) => {
-    const match = !activeTag || (card.dataset.tags ?? "").includes(activeTag);
+    const match = !activeTag || (card.dataset.tags ?? "").split(" ").includes(activeTag);
     if (match) {
       card.style.display = "";
       requestAnimationFrame(() => requestAnimationFrame(() => card.classList.remove("hide")));
@@ -66,7 +80,8 @@ $("#worksCount").textContent = `共 ${WORKS.length} 件`;
 
 /* ---------- 灯箱 ---------- */
 const lb = $("#lb");
-let lbList: Work[] = [], lbIdx = 0, lbTimer: number | undefined;
+let lbList: Work[] = [], lbIdx = 0, lbTimer: number | undefined, lbSwap: number | undefined;
+let lbReturnFocus: HTMLElement | null = null;
 
 function startLbProgress(w: Work) {
   clearInterval(lbTimer);
@@ -74,8 +89,10 @@ function startLbProgress(w: Work) {
   const total = (+w.dur.slice(0, 2)) * 60 + (+w.dur.slice(3));
   const t0 = performance.now();
   lbTimer = window.setInterval(() => {
-    const bar = $("#lbBar"), time = $("#lbTime");
-    if (!bar) { clearInterval(lbTimer); return; }
+    // 优先取媒体区叠加条，否则取信息栏条；切换过渡 240ms 内未就位时下个 tick 再写
+    const bar = document.querySelector("#lbMedia .lb-progress i, #lbProgress i") as HTMLElement | null;
+    const time = document.querySelector("#lbMedia .lb-time, #lbProgress .lb-time");
+    if (!bar || !time) return;
     const s = ((performance.now() - t0) / 1000) % total;
     bar.style.width = (s / total) * 100 + "%";
     time.textContent = `${w.dur!.slice(0, 3)}${String(Math.floor(s)).padStart(2, "0")} / ${w.dur}`;
@@ -85,42 +102,57 @@ function startLbProgress(w: Work) {
 function lbRender() {
   const w = lbList[lbIdx];
   const media = $("#lbMedia");
+  const isVideo = w.type === "video" && !!w.dur;
+  const overlay = isVideo && w.ratio === "16:9";   // 横屏保持原有底部叠加；竖屏等高画面改放信息栏避免压住画面
+  const overlayBar = overlay
+    ? `<div class="lb-progress lb-progress--overlay mono"><span class="track"><i></i></span><span class="lb-time">00:00 / ${esc(w.dur!)}</span></div>`
+    : "";
   media.classList.add("swapping");
-  setTimeout(() => {
-    media.innerHTML = `<div class="swap-wrap">${workVisual(w, { uid: "lb", animated: w.type === "video" })}${
-      w.type === "video" ? `<div class="lb-progress mono"><span class="track"><i id="lbBar"></i></span><span id="lbTime">00:00 / ${w.dur}</span></div>` : ""
-    }</div>`;
+  clearTimeout(lbSwap);                       // 快速连按方向键：丢弃上一次未完成的交换
+  lbSwap = window.setTimeout(() => {
+    media.innerHTML = `<div class="swap-wrap">${workVisual(w, { uid: "lb", animated: w.type === "video", autoplay: true })}${overlayBar}</div>`;
     media.classList.remove("swapping");
   }, 240);
   $("#lbKicker").textContent = `No.${w.id} — ${w.type.toUpperCase()}`;
-  $("#lbTitle").innerHTML = `${w.title}<span class="en">${w.en}</span>`;
+  $("#lbTitle").innerHTML = `${esc(w.title)}<span class="en">${esc(w.en)}</span>`;
   $("#lbMeta").textContent = `${w.model} · ${w.type === "video" ? "图生视频 · " : ""}${w.dur ?? "静态"} · ${w.year}`;
   $("#lbPrompt").textContent = `「${w.prompt}」`;
   $("#lbParams").innerHTML = [w.ratio, w.type === "video" ? "24fps" : "3072×4096", `seed ${w.seed * 617}`, "ed. 1/1"]
-    .map((p) => `<span>${p}</span>`).join("");
+    .map((p) => `<span>${esc(p)}</span>`).join("");
   const prev = lbList[(lbIdx - 1 + lbList.length) % lbList.length];
   const next = lbList[(lbIdx + 1) % lbList.length];
   $("#lbPrev").textContent = `← ${prev.title}`;
   $("#lbNext").textContent = `${next.title} →`;
   $("#lbPos").textContent = `${lbIdx + 1} / ${lbList.length}`;
+  // 竖屏等高画面的进度条放信息栏导航行下方；横屏的叠加在媒体底部（原有设计）
+  const progress = $("#lbProgress");
+  progress.hidden = !isVideo || overlay;
+  if (isVideo && !overlay) {
+    progress.querySelector("i")!.style.width = "0%";
+    progress.querySelector(".lb-time")!.textContent = `00:00 / ${w.dur}`;
+  }
+  history.replaceState(null, "", location.search + `#w${w.id}`);   // 步进时同步深链，分享拿到的就是当前作品
   startLbProgress(w);
 }
 function lbOpen(id: number) {
   const visible = $$(".card", grid).filter((c) => c.style.display !== "none");
   lbList = visible.map((c) => WORKS.find((w) => w.id === +c.dataset.id!)!) ;
   lbIdx = Math.max(0, lbList.findIndex((w) => w.id === id));
+  lbReturnFocus = document.activeElement as HTMLElement | null;
   lbRender();
   lb.classList.add("open");
   lb.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
-  history.replaceState(null, "", `#w${id}`);
+  $(".lb-close", lb).focus();
 }
 function lbClose() {
   clearInterval(lbTimer);
+  lbReturnFocus?.focus();
+  lbReturnFocus = null;
   lb.classList.remove("open");
   lb.setAttribute("aria-hidden", "true");
   document.body.style.overflow = "";
-  history.replaceState(null, "", location.pathname);
+  history.replaceState(null, "", location.pathname + location.search);
 }
 function lbStep(d: number) { lbIdx = (lbIdx + d + lbList.length) % lbList.length; lbRender(); }
 
@@ -128,9 +160,23 @@ grid.addEventListener("click", (e) => {
   const card = (e.target as HTMLElement).closest(".card") as HTMLElement | null;
   if (card) lbOpen(+card.dataset.id!);
 });
+grid.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const card = (e.target as HTMLElement).closest(".card") as HTMLElement | null;
+  if (card) { e.preventDefault(); lbOpen(+card.dataset.id!); }
+});
 $$("[data-lb-close]", lb).forEach((el) => el.addEventListener("click", lbClose));
 $("[data-lb-prev]", lb).addEventListener("click", () => lbStep(-1));
 $("[data-lb-next]", lb).addEventListener("click", () => lbStep(1));
+/* 焦点圈禁：Tab 在灯箱内循环，不出背景页 */
+lb.addEventListener("keydown", (e) => {
+  if (e.key !== "Tab") return;
+  const focusables = $$("button, [href]", lb);
+  if (!focusables.length) return;
+  const first = focusables[0], last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+});
 document.addEventListener("keydown", (e) => {
   if (!lb.classList.contains("open")) return;
   if (e.key === "Escape") lbClose();
@@ -139,9 +185,25 @@ document.addEventListener("keydown", (e) => {
 });
 $("#lbCopy").addEventListener("click", async () => {
   const w = lbList[lbIdx];
-  try { await navigator.clipboard.writeText(`${w.prompt}\n--model ${w.model}`); }
-  catch { /* 剪贴板不可用时静默 */ }
-  toast("提示词已复制到剪贴板 ✓");
+  try {
+    await navigator.clipboard.writeText(`${w.prompt}\n--model ${w.model}`);
+    toast("提示词已复制到剪贴板 ✓");
+  } catch {
+    toast("复制失败 —— 请手动选择提示词复制");
+  }
+});
+$("#lbShare").addEventListener("click", async () => {
+  const w = lbList[lbIdx];
+  if (navigator.share) {
+    try { await navigator.share({ title: `${w.title} — 造梦机器®`, url: location.href }); } catch { /* 用户取消 */ }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(location.href);
+    toast("链接已复制到剪贴板 ✓");
+  } catch {
+    toast("分享失败");
+  }
 });
 if (location.hash.startsWith("#w")) {
   const id = +location.hash.slice(2);
@@ -157,6 +219,28 @@ function toast(msg: string) {
   clearTimeout(toastTimer);
   toastTimer = window.setTimeout(() => t.classList.remove("show"), 2200);
 }
+
+/* ---------- 移动端菜单 ---------- */
+const navToggle = $("#navToggle"), mobileMenu = $("#mobileMenu");
+function closeMobileMenu() {
+  navToggle.classList.remove("open");
+  mobileMenu.classList.remove("open");
+  mobileMenu.setAttribute("aria-hidden", "true");
+  navToggle.setAttribute("aria-expanded", "false");
+  document.body.style.overflow = "";
+}
+navToggle.addEventListener("click", () => {
+  const open = !mobileMenu.classList.contains("open");
+  navToggle.classList.toggle("open", open);
+  mobileMenu.classList.toggle("open", open);
+  mobileMenu.setAttribute("aria-hidden", String(!open));
+  navToggle.setAttribute("aria-expanded", String(open));
+  document.body.style.overflow = open ? "hidden" : "";
+});
+$$(".mobile-links a", mobileMenu).forEach((a) => a.addEventListener("click", closeMobileMenu));
+addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && mobileMenu.classList.contains("open")) closeMobileMenu();
+});
 
 /* ---------- 导航 / 滚动 / 进度 / 回顶 ---------- */
 const nav = $("#nav");
@@ -181,47 +265,54 @@ addEventListener("scroll", () => {
   });
 }, { passive: true });
 
-toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: "smooth" }));
+toTop.addEventListener("click", () => scrollTo({ top: 0, behavior: REDUCED ? "auto" : "smooth" }));
 
-/* ---------- 滚轮阻尼（平滑滚动）：只接管滚轮，其余滚动来源自动同步 ---------- */
-if (matchMedia("(pointer:fine)").matches && !matchMedia("(prefers-reduced-motion:reduce)").matches) {
-  const EASE = 0.07;            // 阻尼系数：越小滑行越「粘稠」
-  const NOTCH_BOOST = 1.7;      // 滚轮「格」增益：惯性能攒起来，滑行更远
-  const SNAP = 0.5;             // 距目标小于该值时贴合收尾
-  let target = scrollY, current = scrollY, animating = false;
+/* ---------- 滚轮阻尼（Lenis 风格 duration 模式）：输入 ×0.92 减速，1.15s 缓动到位 ----------
+   参数对齐 sheengo-labs 的 Lenis 配置：duration 1.15 · easeOutExpo · wheelMultiplier 0.92 */
+const FINE_POINTER = matchMedia("(pointer:fine)").matches;
+if (FINE_POINTER && !REDUCED) {
+  const DURATION = 1.15;         // 每次滚轮输入的缓动时长（秒）
+  const WHEEL_MULTIPLIER = 0.92; // 输入阻尼：<1 → 比原生滚动更慢更稳
+  const easing = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)); // easeOutExpo
+  let from = scrollY, to = scrollY, t0 = 0, raf = 0, lastY = scrollY;
 
   const maxScroll = () => document.documentElement.scrollHeight - innerHeight;
-  const loop = () => {
-    current += (target - current) * EASE;
-    if (Math.abs(target - current) < SNAP) {
-      current = target;
-      scrollTo(0, current);
-      animating = false;
+  const loop = (now: number) => {
+    const p = Math.min(Math.max((now - t0) / (DURATION * 1000), 0), 1);   // 夹到 [0,1]：rAF 时间戳可能早于事件时刻
+    const y = from + (to - from) * easing(p);
+    // 与「我们上一帧写入的位置」比对：偏离超出取整/量化误差 → 用户在拖滚动条/键盘/锚点滚动，立即让位
+    // （不能拿 scrollY 和 y 比：easeOutExpo 起步快，第一帧就会领先当前位置十几 px，会误判成外部滚动导致动画秒死）
+    if (Math.abs(scrollY - lastY) > 2) {
+      from = to = scrollY;
+      lastY = scrollY;
+      raf = 0;
       return;
     }
-    scrollTo(0, current);
-    requestAnimationFrame(loop);
+    scrollTo(0, y);
+    lastY = y;
+    if (p < 1) raf = requestAnimationFrame(loop);
+    else raf = 0;
   };
   addEventListener("wheel", (e) => {
     if (e.ctrlKey) return;                              // 保留缩放
     if ($("#lb").classList.contains("open")) return;    // 灯箱打开时不接管
     e.preventDefault();
-    let dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
-    if (Math.abs(dy) >= 50) dy *= NOTCH_BOOST;          // 鼠标滚轮「格」放大；触控板小幅滚动保持自然
-    if (!animating) { current = scrollY; target = scrollY; }
-    target = Math.max(0, Math.min(target + dy, maxScroll()));
-    if (!animating) { animating = true; requestAnimationFrame(loop); }
+    const dy = (e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY) * WHEEL_MULTIPLIER;
+    from = scrollY;                                     // 每次输入都从当前位置重新出发（Lenis 行为）
+    to = Math.max(0, Math.min(to + dy, maxScroll()));
+    t0 = performance.now();
+    if (!raf) raf = requestAnimationFrame(loop);
   }, { passive: false });
 
-  // 锚点平滑滚动 / 键盘 / 拖动滚动条等外部滚动：即时同步目标
+  // 拖动滚动条 / 键盘等外部滚动：动画外即时同步起点与目标
   addEventListener("scroll", () => {
-    if (!animating) { target = scrollY; current = scrollY; }
+    if (!raf) { from = scrollY; to = scrollY; }
   }, { passive: true });
 }
 
 $$('a[href^="#"]').forEach((a) => a.addEventListener("click", (e) => {
   const target = $(a.getAttribute("href")!);
-  if (target) { e.preventDefault(); target.scrollIntoView({ behavior: "smooth" }); }
+  if (target) { e.preventDefault(); target.scrollIntoView({ behavior: REDUCED ? "auto" : "smooth" }); }
 }));
 
 /* ---------- 滚动显影 ---------- */
@@ -272,17 +363,22 @@ if (matchMedia("(pointer:fine)").matches) {
   });
 }
 
-/* ---------- 自定义光标 ---------- */
+/* ---------- 自定义光标：dot 即时跟随，ring 缓动；收敛后暂停 rAF 省电 ---------- */
 if (matchMedia("(pointer:fine)").matches) {
   const cursor = $(".cursor"), dot = $(".cursor-dot"), ring = $(".cursor-ring"), label = $(".cursor-label");
-  let mx = -100, my = -100, rx = -100, ry = -100;
-  addEventListener("mousemove", (e) => { mx = e.clientX; my = e.clientY; }, { passive: true });
-  (function loop() {
+  let mx = -100, my = -100, rx = -100, ry = -100, raf = 0;
+  dot.style.transform = "translate(-100px,-100px) translate(-50%,-50%)";
+  ring.style.translate = "-100px -100px";
+  const loop = () => {
     rx += (mx - rx) * 0.16; ry += (my - ry) * 0.16;
+    ring.style.translate = `${rx}px ${ry}px`;
+    raf = (Math.abs(mx - rx) > 0.1 || Math.abs(my - ry) > 0.1) ? requestAnimationFrame(loop) : 0;
+  };
+  addEventListener("mousemove", (e) => {
+    mx = e.clientX; my = e.clientY;
     dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
-    ring.style.left = rx + "px"; ring.style.top = ry + "px";
-    requestAnimationFrame(loop);
-  })();
+    if (!raf) raf = requestAnimationFrame(loop);
+  }, { passive: true });
   document.addEventListener("mouseover", (e) => {
     const t = e.target as HTMLElement;
     const labelled = t.closest("[data-cursor]") as HTMLElement | null;
@@ -314,7 +410,7 @@ soundBtn.addEventListener("click", () => {
 $("#loadMore").addEventListener("click", () => toast("已全部 12 件 —— 原型仅内置演示数据"));
 
 /* ---------- 开场幕帘 ---------- */
-if (matchMedia("(prefers-reduced-motion:reduce)").matches) {
+if (REDUCED) {
   $("#loader").remove();
   document.body.classList.add("ready");
 } else {
