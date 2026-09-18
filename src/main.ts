@@ -21,6 +21,7 @@ applyStatic();   // 按 localStorage 记忆的语言刷新静态文案（需在�
 
 const workTitle = (w: Work) => (getLang() === "en" ? w.en : w.title);
 const cardAria  = (w: Work) => `${t("card_aria_prefix")} No.${w.id} ${workTitle(w)}`;
+const ambient = createAmbient();   // 必须先于灯箱实例化：深链 lbOpen 初始化时会调用 ambient.blip()
 
 /* ---------- 渲染作品墙 / 精选 / 工作室 ---------- */
 const grid = $("#worksGrid");
@@ -442,7 +443,6 @@ $("#langToggle").addEventListener("click", () => {
 });
 
 /* ---------- 声音开关：WebAudio 合成氛围声（暗厅环境音 + 交互叮音） ---------- */
-const ambient = createAmbient();
 $("#soundToggle").addEventListener("click", async () => {
   const on = await ambient.toggle();
   $("#soundToggle").classList.toggle("on", on);
