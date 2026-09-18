@@ -36,6 +36,9 @@ const ZH: Dict = {
   toast_copy_fail: "复制失败 —— 请手动选择提示词复制",
   toast_link_copied: "链接已复制到剪贴板 ✓",
   toast_share_fail: "分享失败",
+  sound_aria: "氛围声",
+  toast_sound_on: "氛围声已开启 ✓",
+  toast_sound_off: "氛围声已关闭",
   card_aria_prefix: "查看作品",
 };
 
@@ -71,6 +74,9 @@ const EN: Dict = {
   toast_copy_fail: "Copy failed — please select the prompt manually",
   toast_link_copied: "Link copied to clipboard ✓",
   toast_share_fail: "Share failed",
+  sound_aria: "Ambient sound",
+  toast_sound_on: "Ambient sound on ✓",
+  toast_sound_off: "Ambient sound off",
   card_aria_prefix: "View work",
 };
 

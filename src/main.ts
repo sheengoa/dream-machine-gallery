@@ -4,6 +4,7 @@ import "@fontsource/space-grotesk/700.css";
 import "./styles/main.css";
 import { WORKS, type Work } from "./data/works";
 import { esc, modelKey, workVisual } from "./modules/art";
+import { createAmbient } from "./modules/ambient";
 import { applyStatic, getLang, modelName, setLang, t } from "./i18n";
 
 /* ============================================================
@@ -169,6 +170,7 @@ function lbOpen(id: number) {
   lb.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
   $(".lb-close", lb).focus();
+  ambient.blip();   // 开声时给一声轻提示音
 }
 function lbClose() {
   clearInterval(lbTimer);
@@ -437,6 +439,15 @@ $("#langToggle").addEventListener("click", () => {
   renderChips();
   updateCardCaptions();
   if (lb.classList.contains("open")) lbRender();
+});
+
+/* ---------- 声音开关：WebAudio 合成氛围声（暗厅环境音 + 交互叮音） ---------- */
+const ambient = createAmbient();
+$("#soundToggle").addEventListener("click", async () => {
+  const on = await ambient.toggle();
+  $("#soundToggle").classList.toggle("on", on);
+  $("#soundToggle").setAttribute("aria-pressed", String(on));
+  toast(t(on ? "toast_sound_on" : "toast_sound_off"));
 });
 
 /* ---------- 开场幕帘 ---------- */
