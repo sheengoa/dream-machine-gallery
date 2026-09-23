@@ -146,6 +146,17 @@ function lbRender() {
   lbSwap = window.setTimeout(() => {
     media.innerHTML = `<div class="swap-wrap">${workVisual(w, { uid: "lb", animated: w.type === "video", autoplay: true, muted: !lbSound })}${soundBtn}${overlayBar}</div>`;
     media.classList.remove("swapping");
+    // 显式驱动播放；带声播放被浏览器策略拦截时回退为静音播放并同步开关状态
+    const v = media.querySelector("video");
+    if (v) v.play().catch(() => {
+      if (!v.muted) {
+        v.muted = true;
+        lbSound = false;
+        $("[data-lb-sound]", media)?.classList.remove("on");
+        $("[data-lb-sound]", media)?.setAttribute("aria-pressed", "false");
+      }
+      v.play().catch(() => { /* 完全被拦截：停留在海报画面 */ });
+    });
   }, 240);
   $("#lbKicker").textContent = `No.${w.id} — ${w.type.toUpperCase()}`;
   $("#lbTitle").innerHTML = getLang() === "en"
@@ -185,6 +196,7 @@ function lbOpen(id: number) {
 function lbClose() {
   clearInterval(lbTimer);
   clearTimeout(lbSwap);                    // 收尾时丢弃未完成的切换，避免关闭后仍改写媒体区
+  (document.querySelector("#lbMedia video") as HTMLVideoElement | null)?.pause();   // 关灯箱即停播：有声作品不能在后台继续出声
   if (lbReturnFocus && lbReturnFocus !== document.body) {
     lbReturnFocus.focus();                 // 正常路径：归还到打开灯箱的元素
   } else {
