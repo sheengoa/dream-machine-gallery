@@ -127,6 +127,8 @@ function startLbProgress(w: Work) {
 function lbRender() {
   const w = lbList[lbIdx];
   const media = $("#lbMedia");
+  const [rw, rh] = w.ratio.split(":").map(Number);
+  media.style.setProperty("--lbar", (rw / rh).toFixed(4));   // 媒体框随作品比例伸缩
   const isVideo = w.type === "video" && !!w.dur;
   const overlay = isVideo && w.ratio === "16:9";   // 横屏保持原有底部叠加；竖屏等高画面改放信息栏避免压住画面
   const overlayBar = overlay

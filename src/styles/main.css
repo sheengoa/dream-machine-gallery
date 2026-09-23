@@ -428,11 +428,16 @@ img,svg{display:block;max-width:100%}
   transform:translateY(26px) scale(.985);transition:transform .6s var(--ease);
 }
 .lb.open .lb-panel{transform:none}
+/* 媒体框随作品比例自适应：--lbar = 宽/高（lbRender 按作品写入）。
+   宽 = min(列宽, 面板高×比例)：16:9 横向撑满、9:16 纵向撑满、1:1/3:4 居中收窄 */
 .lb-media{
-  align-self:center;border-radius:16px;overflow:hidden;border:1px solid var(--line-strong);
+  align-self:center;justify-self:center;
+  width:min(100%, calc(min(760px,88vh) * var(--lbar,1.7778)));
+  aspect-ratio:var(--lbar,1.7778);
+  border-radius:16px;overflow:hidden;border:1px solid var(--line-strong);
   box-shadow:0 40px 120px rgba(0,0,0,.6);
 }
-.lb-media svg{width:100%;height:auto;max-height:70vh;object-fit:cover}
+.lb-media svg{width:100%;height:100%}
 .lb-info{align-self:center;display:flex;flex-direction:column;gap:16px}
 .lb-title{font-family:var(--font-serif);font-weight:600;font-size:clamp(28px,2.6vw,40px);line-height:1.2}
 .lb-title .en{display:block;font-family:var(--font-mono);font-size:12px;letter-spacing:.4em;color:var(--mut);margin-top:8px;font-weight:400}
@@ -570,7 +575,11 @@ body:not(.ready) [data-rise]{animation-play-state:paused}
 }
 .lb-progress .track{flex:1;height:2px;background:rgba(242,240,234,.18);overflow:hidden}
 .lb-progress .track i{display:block;height:100%;width:0;background:var(--accent)}
-.lb-media .swap-wrap{transition:opacity .26s ease,transform .26s ease;display:block}
+/* swap-wrap 需自为定位基准：横屏叠加进度条（absolute bottom:0）锚在媒体框内，而非穿透到面板。
+   灯箱内 workVisual 输出的是裸 <video>/<img>（无 .art 包裹），在此统一约束为撑满定比框；
+   contain 保证即便素材与声明比例不符也完整展示，不裁切 */
+.lb-media .swap-wrap{position:relative;width:100%;height:100%;transition:opacity .26s ease,transform .26s ease;display:block}
+.lb-media .swap-wrap video,.lb-media .swap-wrap img{width:100%;height:100%;object-fit:contain;display:block}
 .lb-media.swapping .swap-wrap{opacity:0;transform:translateY(10px)}
 .lb-nav{position:relative}
 .lb-hint{margin-left:auto;font-size:10px;letter-spacing:.2em;color:var(--dim)}
