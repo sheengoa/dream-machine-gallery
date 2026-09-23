@@ -45,7 +45,7 @@ $("#studioArt").innerHTML =
   )}</div>`;
 
 $("#marquee1").innerHTML = ("IMAGE <i>✦</i> VIDEO <i>✦</i> MOTION <i>✦</i> PROMPT CRAFT <i>✦</i> AI FILM <i>✦</i> CONCEPT ART <i>✦</i> ").repeat(4);
-$("#marquee2").innerHTML = ("可灵 KLING <i>✦</i> 即梦 SEEDANCE <i>✦</i> MIDJOURNEY <i>✦</i> STABLE DIFFUSION <i>✦</i> FLUX <i>✦</i> RUNWAY <i>✦</i> VEO <i>✦</i> MINIMAX H3 <i>✦</i> ").repeat(3);
+$("#marquee2").innerHTML = ("可灵 KLING <i>✦</i> 即梦 SEEDANCE <i>✦</i> 万相 WAN <i>✦</i> MIDJOURNEY <i>✦</i> STABLE DIFFUSION <i>✦</i> FLUX <i>✦</i> RUNWAY <i>✦</i> VEO <i>✦</i> MINIMAX H3 <i>✦</i> ").repeat(3);
 
 /* ---------- 视频素材：进视口才播、离开暂停（灯箱内的自动播放不受此控） ---------- */
 const videoIO = new IntersectionObserver((entries) => {
@@ -60,7 +60,7 @@ $$("video[data-artvideo]").forEach((v) => videoIO.observe(v));
 /* ---------- 筛选（带数量上标）：委托监听，语言切换后可整块重绘 ---------- */
 const FILTERS: [string, string][] = [
   ["f_all",""], ["f_image","image"], ["f_video","video"],
-  ["f_kling","kling"], ["f_jimeng","jimeng"], ["f_mj","mj"], ["f_sd","sd"],
+  ["f_kling","kling"], ["f_jimeng","jimeng"], ["f_wan","wan"], ["f_mj","mj"], ["f_sd","sd"],
 ];
 const tagCount = (tag: string) =>
   tag ? WORKS.filter((w) => `${w.type} ${modelKey(w.model)}`.includes(tag)).length : WORKS.length;
@@ -144,7 +144,7 @@ function lbRender() {
     : `${esc(w.title)}<span class="en">${esc(w.en)}</span>`;
   $("#lbMeta").textContent = `${modelName(w.model)} · ${w.type === "video" ? t("i2v") + " · " : ""}${w.dur ?? t("still")} · ${w.year}`;
   $("#lbPrompt").textContent = `「${w.prompt}」`;
-  $("#lbParams").innerHTML = [w.ratio, w.type === "video" ? "24fps" : "3072×4096", `seed ${w.seed * 617}`, "ed. 1/1"]
+  $("#lbParams").innerHTML = [w.ratio, w.type === "video" ? `${w.fps ?? 24}fps` : "3072×4096", `seed ${w.seed * 617}`, "ed. 1/1"]
     .map((p) => `<span>${esc(p)}</span>`).join("");
   const prev = lbList[(lbIdx - 1 + lbList.length) % lbList.length];
   const next = lbList[(lbIdx + 1) % lbList.length];

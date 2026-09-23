@@ -19,6 +19,7 @@ export const RATIO_DIMS: Record<string, [number, number]> = {
 
 export const modelKey = (m: string) => m.includes("可灵") ? "kling"
   : m.includes("即梦") ? "jimeng"
+  : m.includes("万相") ? "wan"
   : m.includes("Midjourney") ? "mj"
   : "sd";
 

@@ -13,14 +13,14 @@ const ZH: Dict = {
   hero_sub: "一间只展出 AI 作品的暗厅。每周上新，<br>每件作品保留它的提示词与生成参数。",
   hero_enter: "进入展厅", hero_featured: "本周精选 ↓",
   hero_open: "暗厅开放中",
-  f_kicker: "00 — FEATURED · WK 38",
-  f_fig: "▶ 00:15 · 可灵 2.5 图生视频",
-  f_meta: "可灵 2.5 · 图生视频 · 15s · 2026.09",
-  f_desc: "深夜渡轮驶出港湾，探照灯扫过铅灰色海面。胶片颗粒、冷蓝调、一镜到底 —— 本周唯一一件逐帧打磨了 40 版的作品。",
+  f_kicker: "00 — FEATURED · WK 39",
+  f_fig: "▶ 00:20 · 通义万相 2.2 图生视频",
+  f_meta: "通义万相 2.2 · 图生视频 · 20s · 2026.09",
+  f_desc: "晚霞烧穿云层，红衣乐手坐上沙脊拨响琵琶。镜头从半陷流沙的马车推向大特写，收束于风里的琴声 —— 二十秒，大漠有了呼吸。",
   f_viewall: "查看全部作品 →",
   w_kicker: "01 — WORKS · 作品墙",
-  w_meta: "№ 117–128 · 共 12 件 · 每周五上新",
-  f_all: "全部", f_image: "图像", f_video: "视频", f_kling: "可灵", f_jimeng: "即梦", f_mj: "MJ", f_sd: "SD/FLUX",
+  w_meta: "№ 117–132 · 共 16 件 · 每周五上新",
+  f_all: "全部", f_image: "图像", f_video: "视频", f_kling: "可灵", f_jimeng: "即梦", f_wan: "万相", f_mj: "MJ", f_sd: "SD/FLUX",
   s_kicker: "02 — STUDIO · 关于",
   s_display: "我们用模型画画，<br>用提示词导演。",
   s_desc: "造梦机器是一间 AIGC 视觉实验室。我们相信模型是乐器而不是画家：审美由人决定，产能由模型放大。这里展出的是双方合作的结果 —— 以及每一件作品背后的提示词、参数与废掉的版本。",
@@ -52,14 +52,14 @@ const EN: Dict = {
   hero_sub: "A dark gallery exhibiting AI works only. New drops weekly —<br>every piece keeps its prompt and parameters.",
   hero_enter: "Enter the Gallery", hero_featured: "This Week's Pick ↓",
   hero_open: "dark gallery open",
-  f_kicker: "00 — FEATURED · WK 38",
-  f_fig: "▶ 00:15 · Kling 2.5 image-to-video",
-  f_meta: "Kling 2.5 · image-to-video · 15s · 2026.09",
-  f_desc: "A night ferry slips out of the harbor, searchlights sweeping the lead-grey sea. Film grain, cold blues, one continuous take — the only piece this week polished through 40 drafts.",
+  f_kicker: "00 — FEATURED · WK 39",
+  f_fig: "▶ 00:20 · Wan 2.2 image-to-video",
+  f_meta: "Wan 2.2 · image-to-video · 20s · 2026.09",
+  f_desc: "A burning sunset bears down on the dune ridge as a red-robed musician plays the pipa. The camera pushes from a half-buried cart to a close-up, ending in the sound of strings in the wind — twenty seconds, and the desert breathes.",
   f_viewall: "View all works →",
   w_kicker: "01 — WORKS · The Wall",
-  w_meta: "№ 117–128 · 12 pieces · New every Friday",
-  f_all: "All", f_image: "Image", f_video: "Video", f_kling: "Kling", f_jimeng: "Jimeng", f_mj: "MJ", f_sd: "SD/FLUX",
+  w_meta: "№ 117–132 · 16 pieces · New every Friday",
+  f_all: "All", f_image: "Image", f_video: "Video", f_kling: "Kling", f_jimeng: "Jimeng", f_wan: "Wan", f_mj: "MJ", f_sd: "SD/FLUX",
   s_kicker: "02 — STUDIO · About",
   s_display: "We paint with models.<br>We direct with prompts.",
   s_desc: "Dream Machine is an AIGC visual lab. We believe models are instruments, not painters: taste stays human, output scales by machine. On show is the result of that collaboration — and every prompt, parameter and discarded version behind it.",
@@ -82,7 +82,7 @@ const EN: Dict = {
   card_aria_prefix: "View work",
 };
 
-const MODEL_EN: Record<string, string> = { "可灵 2.5": "Kling 2.5", "即梦 2.5": "Jimeng 2.5" };
+const MODEL_EN: Record<string, string> = { "可灵 2.5": "Kling 2.5", "即梦 2.5": "Jimeng 2.5", "通义万相 2.2": "Wan 2.2" };
 
 const STRINGS: Record<Lang, Dict> = { zh: ZH, en: EN };
 
