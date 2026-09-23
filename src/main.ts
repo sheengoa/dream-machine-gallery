@@ -38,11 +38,7 @@ grid.innerHTML = WORKS.map((w, i) => {
 
 $("#featuredArt").innerHTML = workVisual(WORKS.find((w) => w.id === 128)!, { uid: "feat", animated: true });
 $("#studioArt").innerHTML =
-  `<div class="art art-34">${workVisual(
-    { id:0, title:"工作室", en:"STUDIO", model:"", type:"image", ratio:"3:4", year:"", seed:137,
-      pal:["#101014","#23232b","#c9c4b4"], accent:"#e8b04b", geo:"ring", prompt:"" },
-    { uid: "studio" },
-  )}</div>`;
+  `<div class="art art-34"><img src="/works/studio.jpg" alt="造梦机器工作台 — 作品联系表" loading="lazy"></div>`;
 
 $("#marquee1").innerHTML = ("IMAGE <i>✦</i> VIDEO <i>✦</i> MOTION <i>✦</i> PROMPT CRAFT <i>✦</i> AI FILM <i>✦</i> CONCEPT ART <i>✦</i> ").repeat(4);
 $("#marquee2").innerHTML = ("可灵 KLING <i>✦</i> 即梦 SEEDANCE <i>✦</i> 万相 WAN <i>✦</i> MIDJOURNEY <i>✦</i> STABLE DIFFUSION <i>✦</i> FLUX <i>✦</i> RUNWAY <i>✦</i> VEO <i>✦</i> MINIMAX H3 <i>✦</i> ").repeat(3);
@@ -197,6 +193,7 @@ function lbClose() {
   clearInterval(lbTimer);
   clearTimeout(lbSwap);                    // 收尾时丢弃未完成的切换，避免关闭后仍改写媒体区
   (document.querySelector("#lbMedia video") as HTMLVideoElement | null)?.pause();   // 关灯箱即停播：有声作品不能在后台继续出声
+  lbSound = false;                         // 退出详情页即自动关闭原声，下次打开恢复静音
   if (lbReturnFocus && lbReturnFocus !== document.body) {
     lbReturnFocus.focus();                 // 正常路径：归还到打开灯箱的元素
   } else {
