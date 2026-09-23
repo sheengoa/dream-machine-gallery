@@ -107,6 +107,7 @@ const updateCardCaptions = () => {
 const lb = $("#lb");
 let lbList: Work[] = [], lbIdx = 0, lbTimer: number | undefined, lbSwap: number | undefined;
 let lbReturnFocus: HTMLElement | null = null;
+let lbSound = false;   // 灯箱作品原声：默认静音（自动播放策略），开启后跨作品保持
 
 function startLbProgress(w: Work) {
   clearInterval(lbTimer);
@@ -139,8 +140,11 @@ function lbRender() {
     : "";
   media.classList.add("swapping");
   clearTimeout(lbSwap);                       // 快速连按方向键：丢弃上一次未完成的交换
+  const soundBtn = isVideo
+    ? `<button class="lb-sound${lbSound ? " on" : ""}" type="button" data-lb-sound aria-pressed="${lbSound}" aria-label="${esc(t("lb_sound_aria"))}"><span class="eq"><i></i><i></i><i></i><i></i></span></button>`
+    : "";
   lbSwap = window.setTimeout(() => {
-    media.innerHTML = `<div class="swap-wrap">${workVisual(w, { uid: "lb", animated: w.type === "video", autoplay: true })}${overlayBar}</div>`;
+    media.innerHTML = `<div class="swap-wrap">${workVisual(w, { uid: "lb", animated: w.type === "video", autoplay: true, muted: !lbSound })}${soundBtn}${overlayBar}</div>`;
     media.classList.remove("swapping");
   }, 240);
   $("#lbKicker").textContent = `No.${w.id} — ${w.type.toUpperCase()}`;
@@ -206,6 +210,20 @@ grid.addEventListener("keydown", (e) => {
 $$("[data-lb-close]", lb).forEach((el) => el.addEventListener("click", lbClose));
 $("[data-lb-prev]", lb).addEventListener("click", () => lbStep(-1));
 $("[data-lb-next]", lb).addEventListener("click", () => lbStep(1));
+/* 灯箱作品原声开关：媒体区每次重绘都会重建按钮，用委托监听 */
+$("#lbMedia").addEventListener("click", (e) => {
+  if (!(e.target as HTMLElement).closest("[data-lb-sound]")) return;
+  lbSound = !lbSound;
+  const v = $("#lbMedia video") as HTMLVideoElement | null;
+  if (v) {
+    v.muted = !lbSound;
+    if (lbSound) v.play().catch(() => { /* 自动播放被策略拦截时静默 */ });
+  }
+  const btn = $("[data-lb-sound]", $("#lbMedia"));
+  btn?.classList.toggle("on", lbSound);
+  btn?.setAttribute("aria-pressed", String(lbSound));
+  toast(t(lbSound ? "lb_sound_on" : "lb_sound_off"));
+});
 /* 焦点圈禁：Tab 在灯箱内循环，不出背景页 */
 lb.addEventListener("keydown", (e) => {
   if (e.key !== "Tab") return;

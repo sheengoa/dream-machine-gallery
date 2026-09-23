@@ -28,6 +28,8 @@ export interface ArtOptions {
   animated?: boolean;
   /** 灯箱内自动播放；卡片/精选位一律由 IntersectionObserver 接管播放 */
   autoplay?: boolean;
+  /** 静音；卡片/精选恒为静音，灯箱内可由用户开启作品原声（默认 true） */
+  muted?: boolean;
   /** 大图默认带颗粒滤镜；小卡片交给全局颗粒层，省 12 个 feTurbulence */
   grain?: boolean;
 }
@@ -76,7 +78,8 @@ export function workVisual(w: Work, opts: ArtOptions = {}): string {
   if (w.media.kind === "video") {
     const poster = w.media.poster ? ` poster="${esc(w.media.poster)}"` : "";
     const auto = opts.autoplay ? " autoplay" : "";
-    return `<video src="${esc(w.media.src)}"${poster} muted loop playsinline preload="metadata"${auto} data-artvideo></video>`;
+    const muted = opts.muted === false ? "" : " muted";
+    return `<video src="${esc(w.media.src)}"${poster}${auto}${muted} loop playsinline preload="metadata" data-artvideo></video>`;
   }
   return `<img src="${esc(w.media.src)}" alt="${esc(w.title)}" loading="lazy">`;
 }

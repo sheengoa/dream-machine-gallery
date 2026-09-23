@@ -578,6 +578,33 @@ body:not(.ready) [data-rise]{animation-play-state:paused}
 /* swap-wrap 需自为定位基准：横屏叠加进度条（absolute bottom:0）锚在媒体框内，而非穿透到面板。
    灯箱内 workVisual 输出的是裸 <video>/<img>（无 .art 包裹），在此统一约束为撑满定比框；
    contain 保证即便素材与声明比例不符也完整展示，不裁切 */
+/* 灯箱作品原声开关：媒体框左上角，复用首页均衡器视觉；默认静音（斜杠），开启后跳动 */
+.lb-sound{
+  position:absolute;top:14px;left:14px;z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  width:42px;height:42px;border-radius:999px;
+  border:1px solid rgba(242,240,234,.25);color:rgba(242,240,234,.85);
+  background:rgba(10,10,11,.45);
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  transition:all .3s;cursor:pointer;
+}
+.lb-sound:hover{border-color:var(--accent);color:var(--accent)}
+.lb-sound:not(.on){opacity:.9}
+.lb-sound:not(.on) .eq i{opacity:.35}
+.lb-sound:not(.on)::after{
+  content:"";position:absolute;width:26px;height:1.5px;border-radius:2px;
+  background:currentColor;transform:rotate(-45deg);
+}
+.lb-sound.on{
+  border-color:var(--accent);color:var(--accent);
+  background:rgba(26,19,7,.6);
+  box-shadow:0 0 0 1px rgba(232,176,75,.45), 0 0 16px rgba(232,176,75,.28);
+}
+.lb-sound.on .eq i{animation:eq .9s ease-in-out infinite alternate;opacity:1}
+.lb-sound.on .eq i:nth-child(2){animation-delay:.15s}
+.lb-sound.on .eq i:nth-child(3){animation-delay:.3s}
+.lb-sound.on .eq i:nth-child(4){animation-delay:.45s}
+
 .lb-media .swap-wrap{position:relative;width:100%;height:100%;transition:opacity .26s ease,transform .26s ease;display:block}
 .lb-media .swap-wrap video,.lb-media .swap-wrap img{width:100%;height:100%;object-fit:contain;display:block}
 .lb-media.swapping .swap-wrap{opacity:0;transform:translateY(10px)}

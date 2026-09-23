@@ -14,8 +14,8 @@ const ZH: Dict = {
   hero_enter: "进入展厅", hero_featured: "本周精选 ↓",
   hero_open: "暗厅开放中",
   f_kicker: "00 — FEATURED · WK 39",
-  f_fig: "▶ 00:15 · 可灵 2.5 图生视频",
-  f_meta: "可灵 2.5 · 图生视频 · 15s · 2026.09",
+  f_fig: "▶ 00:15 · 即梦 2.5 图生视频",
+  f_meta: "即梦 2.5 · 图生视频 · 15s · 2026.09",
   f_desc: "深夜渡轮驶出港湾，探照灯扫过铅灰色海面。胶片颗粒、冷蓝调、一镜到底 —— 本周唯一一件逐帧打磨了 40 版的作品。",
   f_viewall: "查看全部作品 →",
   w_kicker: "01 — WORKS · 作品墙",
@@ -40,6 +40,9 @@ const ZH: Dict = {
   sound_aria: "氛围声",
   toast_sound_on: "氛围声已开启 ✓",
   toast_sound_off: "氛围声已关闭",
+  lb_sound_aria: "作品原声",
+  lb_sound_on: "作品原声已开启 ✓",
+  lb_sound_off: "作品已静音",
   card_aria_prefix: "查看作品",
 };
 
@@ -53,8 +56,8 @@ const EN: Dict = {
   hero_enter: "Enter the Gallery", hero_featured: "This Week's Pick ↓",
   hero_open: "dark gallery open",
   f_kicker: "00 — FEATURED · WK 39",
-  f_fig: "▶ 00:15 · Kling 2.5 image-to-video",
-  f_meta: "Kling 2.5 · image-to-video · 15s · 2026.09",
+  f_fig: "▶ 00:15 · Jimeng 2.5 image-to-video",
+  f_meta: "Jimeng 2.5 · image-to-video · 15s · 2026.09",
   f_desc: "A night ferry slips out of the harbor, searchlights sweeping the lead-grey sea. Film grain, cold blues, one continuous take — the only piece this week polished through 40 drafts.",
   f_viewall: "View all works →",
   w_kicker: "01 — WORKS · The Wall",
@@ -79,10 +82,13 @@ const EN: Dict = {
   sound_aria: "Ambient sound",
   toast_sound_on: "Ambient sound on ✓",
   toast_sound_off: "Ambient sound off",
+  lb_sound_aria: "Work sound",
+  lb_sound_on: "Work sound on ✓",
+  lb_sound_off: "Work muted",
   card_aria_prefix: "View work",
 };
 
-const MODEL_EN: Record<string, string> = { "可灵 2.5": "Kling 2.5", "即梦 2.5": "Jimeng 2.5", "通义万相 2.2": "Wan 2.2" };
+const MODEL_EN: Record<string, string> = { "可灵 3.0": "Kling 3.0", "即梦 2.5": "Jimeng 2.5", "通义万相 3.0": "Wan 3.0" };
 
 const STRINGS: Record<Lang, Dict> = { zh: ZH, en: EN };
 
