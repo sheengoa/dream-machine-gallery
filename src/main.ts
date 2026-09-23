@@ -36,7 +36,7 @@ grid.innerHTML = WORKS.map((w, i) => {
   </article>`;
 }).join("");
 
-$("#featuredArt").innerHTML = workVisual(WORKS[0], { uid: "feat", animated: true });
+$("#featuredArt").innerHTML = workVisual(WORKS.find((w) => w.id === 128)!, { uid: "feat", animated: true });
 $("#studioArt").innerHTML =
   `<div class="art art-34">${workVisual(
     { id:0, title:"工作室", en:"STUDIO", model:"", type:"image", ratio:"3:4", year:"", seed:137,
@@ -120,7 +120,10 @@ function startLbProgress(w: Work) {
     if (!bar || !time) return;
     const s = ((performance.now() - t0) / 1000) % total;
     bar.style.width = (s / total) * 100 + "%";
-    time.textContent = `${w.dur!.slice(0, 3)}${String(Math.floor(s)).padStart(2, "0")} / ${w.dur}`;
+    // 时码 = 已播 mm:ss（分钟取自已播时长，而非总时长前缀——长视频此前会误标成 07:03）
+    const mm = String(Math.floor(s / 60)).padStart(2, "0");
+    const ss = String(Math.floor(s % 60)).padStart(2, "0");
+    time.textContent = `${mm}:${ss} / ${w.dur}`;
   }, 100);
 }
 
