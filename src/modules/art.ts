@@ -15,6 +15,7 @@ export const mulberry32 = (a: number) => () => {
 
 export const RATIO_DIMS: Record<string, [number, number]> = {
   "16:9": [800, 450], "3:4": [600, 800], "1:1": [640, 640], "9:16": [450, 800],
+  "16:10": [800, 500], "2:1": [800, 400],
 };
 
 export const modelKey = (m: string) => m.includes("可灵") ? "kling"

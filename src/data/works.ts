@@ -13,7 +13,7 @@ export interface Work {
   en: string;
   model: string;
   type: "image" | "video";
-  ratio: "16:9" | "3:4" | "1:1" | "9:16";
+  ratio: "16:9" | "3:4" | "1:1" | "9:16" | "16:10" | "2:1";
   dur?: string;
   /** 视频帧率（仅视频作品需要时标注，默认 24） */
   fps?: number;
@@ -27,6 +27,22 @@ export interface Work {
 }
 
 export const WORKS: Work[] = [
+  { id:140, title:"绣夜",     en:"STITCHED NIGHT", model:"即梦 2.5",  type:"video", ratio:"16:9", dur:"00:25", fps:24, year:"2026.10", seed:59,
+    pal:["#0a0c1a","#1c2a4a","#c9d6ea"], accent:"#e8c76a", geo:"line",
+    prompt:"绷架上绷着一片可以刺绣的深蓝夜空，银针刺入布面抽出发亮的丝线，线过处星轨成河，满月自针眼中鼓起、升离布面悬浮，镜头拉远——整片星空原来是未完成的绣品，针别回天角，垂落的线头一颤化作流星，收针定格——原来夜空是绣出来的 --dur 25 --fps 24 --seed 36403",
+    media:{ kind:"video", src:"/works/140.mp4", poster:"/works/140.jpg" } },
+  { id:139, title:"莲生",     en:"LOTUS BORN",     model:"即梦 5.0",  type:"image", ratio:"16:10", year:"2026.09", seed:47,
+    pal:["#0a1216","#1d3038","#f2ead9"], accent:"#a03a48", geo:"ring",
+    prompt:"深色舞台般的静水之上，红裙少女自两朵巨型白莲中诞生，裙摆化作层叠花瓣漫过水面，对称倒影，柔和顶光，东方奇幻人像大片 --ar 16:10 --seed 28999",
+    media:{ kind:"image", src:"/works/139.jpg" } },
+  { id:138, title:"林间配方", en:"FOREST FORMULA", model:"通义万相 4.0", type:"image", ratio:"2:1", year:"2026.09", seed:43,
+    pal:["#0d130c","#2c4222","#a8d08d"], accent:"#d8b34a", geo:"line",
+    prompt:"晨雾苔藓林间的一瓶草本护理油，磨砂瓶身立于青苔与白色小花之间，叶隙光斑斜落瓶身，产品摄影，清爽绿调，浅景深 --ar 2:1 --seed 26531",
+    media:{ kind:"image", src:"/works/138.jpg" } },
+  { id:137, title:"一滴山河",   en:"GOLDEN INK",     model:"即梦 2.5",  type:"video", ratio:"16:9", dur:"00:25", fps:24, year:"2026.10", seed:31,
+    pal:["#0a0a0c","#2a2013","#e8b04b"], accent:"#e8b04b", geo:"ring",
+    prompt:"纯黑水幕前一滴金墨坠落，绽开成金色烟雾，聚拢为连绵山脊与一条金色河流，一叶金舟划过，涟漪散去，金光回收重新凝成一滴悬停的墨滴——一滴山河，三镜闭环 --dur 25 --fps 24 --seed 19127",
+    media:{ kind:"video", src:"/works/137.mp4", poster:"/works/137.jpg" } },
   { id:136, title:"猴与猪",     en:"MONKEY & PIG",   model:"即梦 2.5",  type:"video", ratio:"16:9", dur:"07:32", fps:30, year:"2026.09", seed:13,
     pal:["#120d0a","#33231a","#e8b04b"], accent:"#e8b04b", geo:"ring",
     prompt:"雾夜集市的赌石局：手气正旺的猿猴连赢赤金髓与金龙髓，被同伴怂恿押上全部身家八十两买下「石王」——刀落切开，只剩六两，瞬间输得精光。赌局的诱惑与反噬，七分半魔幻短片 --dur 452 --fps 30 --seed 8021",
@@ -65,7 +81,8 @@ export const WORKS: Work[] = [
     media:{ kind:"video", src:"/works/128.mp4", poster:"/works/128.jpg" } },
   { id:127, title:"铁锈与花园", en:"RUST & GARDEN",  model:"Midjourney v7", type:"image", ratio:"3:4", year:"2026.09", seed:23,
     pal:["#190d08","#59290f","#e09a52"], accent:"#9dbb72", geo:"line",
-    prompt:"废弃钢厂中央长出一座亚热带花园，铁锈橙与苔绿对撞，体积光 --ar 3:4 --s 250" },
+    prompt:"废弃钢厂中央长出一座亚热带花园，铁锈橙与苔绿对撞，体积光 --ar 3:4 --s 250",
+    media:{ kind:"image", src:"/works/127.jpg" } },
   { id:126, title:"雨后霓虹",   en:"NEON AFTER RAIN",model:"可灵 3.0",  type:"video", ratio:"9:16", dur:"00:08", year:"2026.08", seed:37,
     pal:["#090f1e","#173058","#5ad0ff"], accent:"#ff5c8a", geo:"none",
     prompt:"雨夜街头霓虹在湿漉漉的柏油路碎成色块，倒置世界，慢门拉丝 --dur 8 --seed 22829",
@@ -76,10 +93,12 @@ export const WORKS: Work[] = [
     media:{ kind:"video", src:"/works/125.mp4", poster:"/works/125.jpg" } },
   { id:124, title:"十一月的房间",en:"NOVEMBER ROOM", model:"SD · FLUX", type:"image", ratio:"1:1", year:"2026.08", seed:53,
     pal:["#14110d","#393023","#c9b48a"], accent:"#efe9db", geo:"none",
-    prompt:"午后四点的房间，阳光斜切过浮尘，旧木地板，伦勃朗光 --steps 40 --cfg 6" },
+    prompt:"午后四点的房间，阳光斜切过浮尘，旧木地板，伦勃朗光 --steps 40 --cfg 6",
+    media:{ kind:"image", src:"/works/124.jpg" } },
   { id:123, title:"候鸟电台",   en:"MIGRANT RADIO",  model:"Midjourney v7", type:"image", ratio:"3:4", year:"2026.07", seed:67,
     pal:["#0f0e18","#2c2848","#9a8cff"], accent:"#f2c94c", geo:"ring",
-    prompt:"候鸟群掠过荒原上最后一座无线电塔，暮色紫与信号黄 --ar 3:4 --chaos 20" },
+    prompt:"候鸟群掠过荒原上最后一座无线电塔，暮色紫与信号黄 --ar 3:4 --chaos 20",
+    media:{ kind:"image", src:"/works/123.jpg" } },
   { id:122, title:"纸鹤城市",   en:"ORIGAMI CITY",   model:"即梦 2.5",  type:"video", ratio:"9:16", dur:"00:10", year:"2026.07", seed:71,
     pal:["#0c0c12","#26262e","#e3e3ea"], accent:"#ff4d4d", geo:"none",
     prompt:"一只白色纸鹤穿越折纸折叠的午夜都市，单点红色，定格动画质感 --dur 10 --seed 43807",
@@ -90,15 +109,18 @@ export const WORKS: Work[] = [
     media:{ kind:"video", src:"/works/121.mp4", poster:"/works/121.jpg" } },
   { id:120, title:"苔藓纪念碑", en:"MOSS MONUMENT",  model:"FLUX",      type:"image", ratio:"3:4", year:"2026.06", seed:89,
     pal:["#0b120c","#23402a","#a3c98a"], accent:"#e8e2c4", geo:"ring",
-    prompt:"被苔藓完全吞没的混凝土纪念碑，柔雾，低饱和 --guidance 3.5" },
+    prompt:"被苔藓完全吞没的混凝土纪念碑，柔雾，低饱和 --guidance 3.5",
+    media:{ kind:"image", src:"/works/120.jpg" } },
   { id:119, title:"蓝色时区",   en:"BLUE TIMEZONE",  model:"Midjourney v7", type:"image", ratio:"1:1", year:"2026.05", seed:97,
     pal:["#070d1a","#16305c","#6a9bff"], accent:"#f0f4ff", geo:"none",
-    prompt:"凌晨三点的候机厅，所有时钟指向不同时间，蓝调时刻 --ar 1:1 --s 400" },
+    prompt:"凌晨三点的候机厅，所有时钟指向不同时间，蓝调时刻 --ar 1:1 --s 400",
+    media:{ kind:"image", src:"/works/119.jpg" } },
   { id:118, title:"废墟芭蕾",   en:"BALLET IN RUINS",model:"可灵 3.0",  type:"video", ratio:"9:16", dur:"00:08", year:"2026.05", seed:101,
     pal:["#150d12","#3c2030","#e8a0b4"], accent:"#f2e6c8", geo:"none",
     prompt:"芭蕾舞者在废弃剧院独舞，裙摆扬起灰尘，顶光，慢动作 --dur 8 --seed 62317",
     media:{ kind:"video", src:"/works/118.mp4", poster:"/works/118.jpg" } },
   { id:117, title:"灰尘光环",   en:"DUST HALO",      model:"Stable Diffusion", type:"image", ratio:"3:4", year:"2026.04", seed:113,
     pal:["#121008","#3a3218","#e8d48a"], accent:"#ffffff", geo:"ring",
-    prompt:"老藏书室里一束光柱点燃浮尘，琥珀色调，微距 --hires fix --cfg 7" },
+    prompt:"老藏书室里一束光柱点燃浮尘，琥珀色调，微距 --hires fix --cfg 7",
+    media:{ kind:"image", src:"/works/117.jpg" } },
 ];

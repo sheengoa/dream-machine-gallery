@@ -349,6 +349,8 @@ img,svg{display:block;max-width:100%}
 .art-34{aspect-ratio:3/4}.art-34 svg{height:100%}
 .art-11{aspect-ratio:1/1}.art-11 svg{height:100%}
 .art-916{aspect-ratio:9/16}.art-916 svg{height:100%}
+.art-1610{aspect-ratio:16/10}.art-1610 svg{height:100%}
+.art-21{aspect-ratio:2/1}.art-21 svg{height:100%}
 .card:hover .art svg{transform:scale(1.045)}
 .art svg{transition:transform 1.4s var(--ease)}
 .art--video svg .bl{animation:drift 12s ease-in-out infinite alternate}
@@ -453,6 +455,7 @@ img,svg{display:block;max-width:100%}
 }
 .lb-actions{display:flex;gap:10px;flex-wrap:wrap}
 .lb-actions .btn{padding:12px 22px;font-size:12px}
+.lb-actions .btn[hidden]{display:none}   /* .btn 的 inline-flex 会压过 UA 的 [hidden]，需显式守卫 */
 .lb-nav{display:flex;align-items:center;gap:18px;font-size:11px;letter-spacing:.16em;color:var(--mut)}
 .lb-nav button{color:var(--mut);letter-spacing:inherit;font-size:inherit;transition:color .3s}
 .lb-nav button:hover{color:var(--accent)}
