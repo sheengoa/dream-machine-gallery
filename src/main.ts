@@ -36,7 +36,9 @@ grid.innerHTML = WORKS.map((w, i) => {
   </article>`;
 }).join("");
 
-$("#featuredArt").innerHTML = workVisual(WORKS.find((w) => w.id === 128)!, { uid: "feat", animated: true });
+/* ---------- 本周精选：改 FEATURED_ID 即可换精选位 ---------- */
+const FEATURED_ID = 137;
+$("#featuredArt").innerHTML = workVisual(WORKS.find((w) => w.id === FEATURED_ID)!, { uid: "feat", animated: true });
 $("#studioArt").innerHTML =
   `<div class="art art-34"><img src="/works/studio.jpg" alt="造梦机器工作台 — 作品联系表" loading="lazy"></div>`;
 
@@ -136,7 +138,8 @@ function lbRender() {
     : "";
   media.classList.add("swapping");
   clearTimeout(lbSwap);                       // 快速连按方向键：丢弃上一次未完成的交换
-  const soundBtn = isVideo
+  // 原声开关只对带真实素材的视频有意义：占位视觉（无 media）没有 <video>，开了也无声可放
+  const soundBtn = isVideo && w.media
     ? `<button class="lb-sound${lbSound ? " on" : ""}" type="button" data-lb-sound aria-pressed="${lbSound}" aria-label="${esc(t("lb_sound_aria"))}"><span class="eq"><i></i><i></i><i></i><i></i></span></button>`
     : "";
   lbSwap = window.setTimeout(() => {
@@ -162,6 +165,10 @@ function lbRender() {
   $("#lbPrompt").textContent = `「${w.prompt}」`;
   $("#lbParams").innerHTML = [w.ratio, w.type === "video" ? `${w.fps ?? 24}fps` : "3072×4096", `seed ${w.seed * 617}`, "ed. 1/1"]
     .map((p) => `<span>${esc(p)}</span>`).join("");
+  // 下载原图/视频：仅有真实素材的作品可下载；占位作品隐藏按钮（本身无文件可下）
+  const dl = $("#lbDownload");
+  dl.hidden = !w.media;
+  if (w.media) dl.textContent = t(w.media.kind === "video" ? "lb_download_video" : "lb_download");
   const prev = lbList[(lbIdx - 1 + lbList.length) % lbList.length];
   const next = lbList[(lbIdx + 1) % lbList.length];
   $("#lbPrev").textContent = `← ${workTitle(prev)}`;
@@ -180,7 +187,13 @@ function lbRender() {
 function lbOpen(id: number) {
   const visible = $$(".card", grid).filter((c) => c.style.display !== "none");
   lbList = visible.map((c) => WORKS.find((w) => w.id === +c.dataset.id!)!) ;
-  lbIdx = Math.max(0, lbList.findIndex((w) => w.id === id));
+  let idx = lbList.findIndex((w) => w.id === id);
+  if (idx === -1) {
+    // 目标不在当前筛选结果里（精选位播放、筛选态深链）：回退全量列表，避免被 Math.max 掩盖成第一件
+    lbList = [...WORKS];
+    idx = lbList.findIndex((w) => w.id === id);
+  }
+  lbIdx = Math.max(0, idx);
   lbReturnFocus = document.activeElement as HTMLElement | null;
   lbRender();
   lb.classList.add("open");
@@ -219,6 +232,8 @@ grid.addEventListener("keydown", (e) => {
 $$("[data-lb-close]", lb).forEach((el) => el.addEventListener("click", lbClose));
 $("[data-lb-prev]", lb).addEventListener("click", () => lbStep(-1));
 $("[data-lb-next]", lb).addEventListener("click", () => lbStep(1));
+/* 精选位播放按钮：打开本周精选的灯箱 */
+$(".play-badge").addEventListener("click", () => lbOpen(FEATURED_ID));
 /* 灯箱作品原声开关：媒体区每次重绘都会重建按钮，用委托监听 */
 $("#lbMedia").addEventListener("click", (e) => {
   if (!(e.target as HTMLElement).closest("[data-lb-sound]")) return;
@@ -256,6 +271,16 @@ $("#lbCopy").addEventListener("click", async () => {
   } catch {
     toast(t("toast_copy_fail"));
   }
+});
+$("#lbDownload").addEventListener("click", () => {
+  const w = lbList[lbIdx];
+  if (!w.media) return;
+  const a = document.createElement("a");
+  a.href = w.media.src;
+  a.download = w.media.src.split("/").pop() || "";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
 });
 $("#lbShare").addEventListener("click", async () => {
   const w = lbList[lbIdx];
