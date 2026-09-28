@@ -493,8 +493,20 @@ img,svg{display:block;max-width:100%}
   .nav-lang{border:none;padding-left:0}
   .hero-tag{top:84px}
   .sound-toggle{display:none}
-  .lb-panel{grid-template-columns:1fr;height:auto;top:6vh;margin-top:0;overflow-y:auto}
-  .lb-info{padding:0 2vw 40px}
+  /* 灯箱手机端：面板退化为 block 流 —— grid 的自动行在「aspect-ratio + align-self:center +
+     容器定高」下会把行高压塌（媒体框上溢出面板、下压信息区且无法滚动），block 流无此问题 */
+  .lb-panel{
+    display:block;height:auto;top:6vh;margin-top:0;overflow-y:auto;
+    padding:34px 0 24px;   /* 顶部留出 ESC 按钮专属条带 */
+  }
+  .lb-close{top:6px;right:4px}
+  /* 媒体框高度按 44svh 封顶、宽度随比例换算：竖图/方图不再吃满屏，信息区同屏可达，其余滚动 */
+  .lb-media{
+    width:min(100%, calc(44vh * var(--lbar,1.7778)));
+    width:min(100%, calc(44svh * var(--lbar,1.7778)));
+    margin:0 auto;
+  }
+  .lb-info{align-self:auto;padding:18px 2vw 40px}
   .stats{grid-template-columns:repeat(3,1fr)}
 }
 @media (max-width:480px){.works{columns:1}}
